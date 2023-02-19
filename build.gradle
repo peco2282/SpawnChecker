@@ -1,7 +1,7 @@
 buildscript {
   repositories {
     mavenLocal()
-    maven { url = "https://files.minecraftforge.net/maven" }
+    maven { url = 'https://maven.minecraftforge.net' }
     jcenter()
     mavenCentral()
   }
@@ -10,7 +10,7 @@ buildscript {
   }
 }
 plugins {
-  id "net.minecrell.licenser" version "0.4"
+  id "net.minecrell.licenser" version "0.4.1"
 }
 apply plugin: "net.minecraftforge.gradle"
 apply plugin: "eclipse" // Do not delete it, because referred from FG
