@@ -1,19 +1,20 @@
 buildscript {
   repositories {
     mavenLocal()
-    maven { url = "https://files.minecraftforge.net/maven" }
+    maven { url = "https://maven.minecraftforge.net" } // { url = "https://files.minecraftforge.net/maven" }
     jcenter()
     mavenCentral()
   }
   dependencies {
-    classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "3.+", changing: true
+    classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "5.1.+", changing: true
   }
 }
-plugins {
-  id "net.minecrell.licenser" version "0.4"
-}
+//plugins {
+//  id "net.minecrell.licenser" version "0.4.1"
+//}
 apply plugin: "net.minecraftforge.gradle"
 apply plugin: "eclipse" // Do not delete it, because referred from FG
+apply plugin: "maven-publish"
 apply from: "./gradle/versions.gradle"
 
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -31,12 +32,12 @@ ext {
     buildNumber = "local"
     snapshot = "-SNAPSHOT"
   }
-  minecraftVersion = "1.16.4"
-  minecraftVersionRange = "[1.16.4]"
-  forgeVersionRange = "[35,)"
-  forgeVersion = "1.16.4-35.0.1"
-  mappingsChannel = "snapshot"
-  mappingsVersion = "20201028-1.16.3"
+  minecraftVersion = "1.17.1"
+  minecraftVersionRange = "[1.17.1]"
+  forgeVersionRange = "[37,)"
+  forgeVersion = "1.17.1-37.1.1"
+  mappingsChannel = "official"
+  mappingsVersion = "1.17.1" // "20201028-1.16.3"
 }
 
 version = "${versionTag}.${commitCount}${snapshot}"
@@ -44,7 +45,7 @@ group = "net.awairo.minecraft.spawnchecker"
 archivesBaseName = "spawnchecker-${minecraftVersion}"
 
 sourceCompatibility = targetCompatibility = javaVersion
-tasks.withType(JavaCompile) {
+tasks.withType(JavaCompile).configureEach {
   sourceCompatibility = targetCompatibility = javaVersion
   options.encoding = "UTF-8"
 }
@@ -70,6 +71,13 @@ dependencies {
   testImplementation "org.junit.jupiter:junit-jupiter-api:5.+"
   testImplementation "org.junit.jupiter:junit-jupiter-engine:5.+"
 }
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+println(
+  "Java: ${System.getProperty('java.version')} " +
+    "'JVM: ${System.getProperty('java.vm.version')} " +
+    "(${System.getProperty('java.vendor')}) " +
+    "Arch ${System.getProperty('os.arch')}"
+)
 
 minecraft {
   // the mappings can be changed at any time, and must be in the following format.
@@ -136,19 +144,16 @@ minecraft {
   }
 }
 
-license {
-  header = project.file("LICENSE-HEADER.txt")
-  ext {
-    name = "alalwww"
-    years = "2019"
-  }
+//license {
+//  header = project.file("LICENSE-HEADER.txt")
+//  ext {
+//    name = "alalwww"
+//    years = "2019"
+//  }
+//}
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
-  exclude "**/*.json"
-  exclude "**/*.mcmeta"
-  exclude "**/*.toml"
-}
-
-task processModsTomlResources(type: Copy) {
+tasks.register('processModsTomlResources', Copy) {
   into(sourceSets.main.output.resourcesDir)
   from(sourceSets.main.resources) {
     include "META-INF/mods.toml"
@@ -186,7 +191,7 @@ jar {
     attributes "Specification-Version": "3.0"
     attributes "Implementation-Title": project.group
     attributes "Implementation-Vendor": "alalwww"
-    attributes "Implementation-Version": "${version}"
+    attributes "Implementation-Version": "${archiveVersion}"
     attributes "Implementation-Timestamp": now(UTC).toString()
     attributes "CI-Build-Number": buildNumber
     attributes "Git-Commit-Hash": commitHash
@@ -200,11 +205,11 @@ test {
   }
 }
 
-task signJar {
+tasks.register('signJar') {
   dependsOn "reobfJar"
   description = "signing jar file"
 
-  def jarFile = jar.archivePath /* jar.archiveFile */
+  def jarFile =  jar.archiveFile
 
   inputs.file jarFile
   outputs.file jarFile
