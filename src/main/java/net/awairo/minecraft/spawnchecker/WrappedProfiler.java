@@ -19,48 +19,51 @@
 
 package net.awairo.minecraft.spawnchecker;
 
-import net.minecraft.profiler.IProfiler;
-
 import lombok.RequiredArgsConstructor;
+import net.minecraft.util.profiling.ProfilerFiller;
 
 @RequiredArgsConstructor
 final class WrappedProfiler {
-    private final IProfiler underlying;
+  private final ProfilerFiller underlying;
 
-    private void start(final String subSection) {
-        underlying.startSection(SpawnChecker.MOD_ID);
-        underlying.startSection(subSection);
-    }
+  /*
+  IProfiler#startSection(String p_i8581_) => ProfilerFiller#push(String p_i8581_)
+  IProfiler#endSection() => ProfilerFiller#pop()
+   */
+  private void start(final String subSection) {
+    underlying.push(SpawnChecker.MOD_ID);
+    underlying.push(subSection);
+  }
 
-    private void end() {
-        underlying.endSection();
-        underlying.endSection();
-    }
+  private void end() {
+    underlying.pop();
+    underlying.pop();
+  }
 
-    // FIXME セクションの見直し
+  // FIXME セクションの見直し
 
-    void startClientTick() {
-        start("clientTick");
-    }
+  void startClientTick() {
+    start("clientTick");
+  }
 
-    void endClientTick() {
-        end();
-    }
+  void endClientTick() {
+    end();
+  }
 
-    void startRenderHud() {
-        start("renderHud");
-    }
+  void startRenderHud() {
+    start("renderHud");
+  }
 
-    void endRenderHud() {
-        end();
-    }
+  void endRenderHud() {
+    end();
+  }
 
-    void startRenderMarker() {
-        start("renderMarker");
-    }
+  void startRenderMarker() {
+    start("renderMarker");
+  }
 
-    void endRenderMarker() {
-        end();
-    }
+  void endRenderMarker() {
+    end();
+  }
 
 }

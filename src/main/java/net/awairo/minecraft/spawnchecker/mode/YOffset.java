@@ -19,44 +19,43 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import java.util.Objects;
-
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.state.properties.SlabType;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
+
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Getter
 public enum YOffset {
-    DEFAULT(0.0d, 0.0d),
-    SNOW_ON_TOP(0.1d, 0.0d),
-    SINGLE_TOP_SLAB(0.0d, 0.5d),
-    SINGLE_TOP_SLAB_SNOW_ON_TOP(SNOW_ON_TOP.topOffset, SINGLE_TOP_SLAB.bottomOffset),
-    ;
+  DEFAULT(0.0d, 0.0d),
+  SNOW_ON_TOP(0.1d, 0.0d),
+  SINGLE_TOP_SLAB(0.0d, 0.5d),
+  SINGLE_TOP_SLAB_SNOW_ON_TOP(SNOW_ON_TOP.topOffset, SINGLE_TOP_SLAB.bottomOffset),
+  ;
 
-    final double topOffset;
-    final double bottomOffset;
+  final double topOffset;
+  final double bottomOffset;
 
-    static YOffset of(BlockState state, BlockState underState) {
-        if (snowOnTop(state))
-            return singleTopSlab(underState) ? SINGLE_TOP_SLAB_SNOW_ON_TOP : SNOW_ON_TOP;
-        return singleTopSlab(underState) ? SINGLE_TOP_SLAB : DEFAULT;
-    }
+  static YOffset of(BlockState state, BlockState underState) {
+    if (snowOnTop(state))
+      return singleTopSlab(underState) ? SINGLE_TOP_SLAB_SNOW_ON_TOP : SNOW_ON_TOP;
+    return singleTopSlab(underState) ? SINGLE_TOP_SLAB : DEFAULT;
+  }
 
-    private static boolean snowOnTop(BlockState state) {
-        return Objects.equals(state.getBlock(), Blocks.SNOW);
-    }
+  private static boolean snowOnTop(BlockState state) {
+    return Objects.equals(state.getBlock(), Blocks.SNOW);
+  }
 
-    private static boolean singleTopSlab(BlockState underState) {
-        return underState.getBlock() instanceof SlabBlock && underState.get(SlabBlock.TYPE) == SlabType.TOP;
-    }
+  private static boolean singleTopSlab(BlockState underState) {
+    return underState.getBlock() instanceof SlabBlock && underState.getValue(SlabBlock.TYPE) == SlabType.TOP;
+  }
 
-    @Override
-    public String toString() {
-        return "YOffset(top=" + topOffset + ",bottom=" + bottomOffset + ")";
-    }
+  @Override
+  public String toString() {
+    return "YOffset(top=" + topOffset + ",bottom=" + bottomOffset + ")";
+  }
 }

@@ -19,43 +19,41 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
+import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
 
 @RequiredArgsConstructor(access = AccessLevel.PACKAGE)
 public final class UpdateTimer {
 
-    private final SpawnCheckerConfig config;
+  private final SpawnCheckerConfig config;
 
-    private long lastUpdate;
+  private long lastUpdate;
 
-    boolean canUpdate(long now) {
-        val ret = now - lastUpdate > config.modeConfig().checkInterval().milliSeconds;
-        if (ret)
-            lastUpdate = now;
-        return ret;
+  boolean canUpdate(long now) {
+    val ret = now - lastUpdate > config.modeConfig().checkInterval().milliSeconds;
+    if (ret)
+      lastUpdate = now;
+    return ret;
+  }
+
+  @Value
+  public static final class Interval {
+    public static final int MIN_VALUE = 50;
+    public static final int MAX_VALUE = 5_000;
+    public static final Interval DEFAULT = new Interval(500);
+    private final int milliSeconds;
+
+    private Interval(int milliSeconds) {
+      if (milliSeconds < MIN_VALUE || milliSeconds > MAX_VALUE)
+        throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
+      this.milliSeconds = milliSeconds;
     }
 
-    @Value
-    public static final class Interval {
-        public static final int MIN_VALUE = 50;
-        public static final int MAX_VALUE = 5_000;
-        public static final Interval DEFAULT = new Interval(500);
-
-        public static Interval ofMilliSeconds(int milliSeconds) {
-            return milliSeconds == DEFAULT.milliSeconds ? DEFAULT : new Interval(milliSeconds);
-        }
-
-        private final int milliSeconds;
-
-        private Interval(int milliSeconds) {
-            if (milliSeconds < MIN_VALUE || milliSeconds > MAX_VALUE)
-                throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
-            this.milliSeconds = milliSeconds;
-        }
+    public static Interval ofMilliSeconds(int milliSeconds) {
+      return milliSeconds == DEFAULT.milliSeconds ? DEFAULT : new Interval(milliSeconds);
     }
+  }
 }

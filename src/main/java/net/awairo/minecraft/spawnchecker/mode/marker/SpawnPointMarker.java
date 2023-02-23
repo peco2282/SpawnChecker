@@ -19,12 +19,9 @@
 
 package net.awairo.minecraft.spawnchecker.mode.marker;
 
-import javax.annotation.Nullable;
-import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
-
+import com.mojang.blaze3d.platform.GlStateManager;
+import lombok.*;
+import lombok.experimental.Accessors;
 import net.awairo.minecraft.spawnchecker.SpawnChecker;
 import net.awairo.minecraft.spawnchecker.api.Color;
 import net.awairo.minecraft.spawnchecker.api.Marker;
@@ -32,114 +29,113 @@ import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
 import net.awairo.minecraft.spawnchecker.mode.YOffset;
 import net.awairo.minecraft.spawnchecker.mode.marker.model.GuidelineModel;
 import net.awairo.minecraft.spawnchecker.mode.marker.model.SpawnPointModel;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.Accessors;
-import lombok.val;
+import javax.annotation.Nullable;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SpawnPointMarker implements Marker {
 
-    enum Texture {
-        DEFAULT, ENDERMAN, GHAST, SLIME, SPIDER;
-        @Getter
-        private final ResourceLocation location =
-            new ResourceLocation(SpawnChecker.MOD_ID, "textures/markers/spawn_marker_" + name().toLowerCase() + ".png");
+  private final SpawnPointModel markerModel;
+  @Nullable
+  private final GuidelineModel guidelineModel;
+  private final BlockPos pos;
+  private final Color color;
+
+  private SpawnPointMarker(
+    Texture texture,
+    double blockSize,
+    Color color,
+    BlockPos pos,
+    YOffset yOffset,
+    boolean drawGuideline
+  ) {
+    this.markerModel = new SpawnPointModel(texture.location, blockSize, 0.03d, yOffset);
+    this.guidelineModel = drawGuideline ? new GuidelineModel() : null;
+    this.pos = pos;
+    this.color = color;
+  }
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  @Override
+  public void draw(MarkerRenderer renderer) {
+    EntityRenderDispatcher entityRenderDispatcher = renderer.renderManager();
+    if (entityRenderDispatcher.camera == null)
+      return;
+
+    val viewerPos = entityRenderDispatcher.camera.getPosition();
+    renderer.push();
+    {
+      color.setToBoolean(GlStateManager::_colorMask);
+      renderer.translate(
+        ((double) pos.getX()) - viewerPos.x,
+        ((double) pos.getY()) - viewerPos.y - 1d, // 1ブロック下げる
+        ((double) pos.getZ()) - viewerPos.z
+      );
+      markerModel.draw(renderer);
+
+    }
+    renderer.pop();
+
+    if (guidelineModel == null)
+      return;
+
+    renderer.push();
+    {
+      color.setToColor4F(GL11::glColor4f);
+      renderer.translate(
+        ((double) pos.getX()) - viewerPos.x,
+        ((double) pos.getY()) - viewerPos.y,
+        ((double) pos.getZ()) - viewerPos.z
+      );
+      guidelineModel.draw(renderer);
+    }
+    renderer.pop();
+  }
+
+  enum Texture {
+    DEFAULT, ENDERMAN, GHAST, SLIME, SPIDER;
+    @Getter
+    private final ResourceLocation location =
+      new ResourceLocation(SpawnChecker.MOD_ID, "textures/markers/spawn_marker_" + name().toLowerCase() + ".png");
+  }
+
+  @Data
+  @Accessors(chain = true, fluent = true)
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
+  public static final class Builder {
+    private Color endermanMarkerColor;
+    private Color zombieSizeMobMarkerColor;
+    private Color spiderMarkerColor;
+    private Color slimeMarkerColor;
+    private Color ghastMarkerColor;
+    private boolean drawGuideline;
+    private double blockSize = 0.4d;
+
+    public SpawnPointMarker buildEndermanMarker(BlockPos pos, YOffset yOffset) {
+      return new SpawnPointMarker(Texture.ENDERMAN, blockSize, endermanMarkerColor, pos, yOffset, drawGuideline);
     }
 
-    public static Builder builder() { return new Builder(); }
-
-    @Data
-    @Accessors(chain = true, fluent = true)
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    public static final class Builder {
-        private Color endermanMarkerColor;
-        private Color zombieSizeMobMarkerColor;
-        private Color spiderMarkerColor;
-        private Color slimeMarkerColor;
-        private Color ghastMarkerColor;
-        private boolean drawGuideline;
-        private double blockSize = 0.4d;
-
-        public SpawnPointMarker buildEndermanMarker(BlockPos pos, YOffset yOffset) {
-            return new SpawnPointMarker(Texture.ENDERMAN, blockSize, endermanMarkerColor, pos, yOffset, drawGuideline);
-        }
-
-        public SpawnPointMarker buildZombieSizeMobMarker(BlockPos pos, YOffset yOffset) {
-            return new SpawnPointMarker(Texture.DEFAULT, blockSize, zombieSizeMobMarkerColor, pos, yOffset, drawGuideline);
-        }
-
-        public SpawnPointMarker buildSpiderMarker(BlockPos pos, YOffset yOffset) {
-            return new SpawnPointMarker(Texture.SPIDER, blockSize, spiderMarkerColor, pos, yOffset, drawGuideline);
-        }
-
-        public SpawnPointMarker buildSlimeMarker(BlockPos pos, YOffset yOffset) {
-            return new SpawnPointMarker(Texture.SLIME, blockSize, slimeMarkerColor, pos, yOffset, drawGuideline);
-        }
-
-        public SpawnPointMarker buildGhastMarker(BlockPos pos, YOffset yOffset) {
-            return new SpawnPointMarker(Texture.GHAST, blockSize, ghastMarkerColor, pos, yOffset, drawGuideline);
-        }
+    public SpawnPointMarker buildZombieSizeMobMarker(BlockPos pos, YOffset yOffset) {
+      return new SpawnPointMarker(Texture.DEFAULT, blockSize, zombieSizeMobMarkerColor, pos, yOffset, drawGuideline);
     }
 
-    private final SpawnPointModel markerModel;
-
-    @Nullable
-    private final GuidelineModel guidelineModel;
-
-    private final BlockPos pos;
-    private final Color color;
-
-    private SpawnPointMarker(
-        Texture texture,
-        double blockSize,
-        Color color,
-        BlockPos pos,
-        YOffset yOffset,
-        boolean drawGuideline
-    ) {
-        this.markerModel = new SpawnPointModel(texture.location, blockSize, 0.03d, yOffset);
-        this.guidelineModel = drawGuideline ? new GuidelineModel() : null;
-        this.pos = pos;
-        this.color = color;
+    public SpawnPointMarker buildSpiderMarker(BlockPos pos, YOffset yOffset) {
+      return new SpawnPointMarker(Texture.SPIDER, blockSize, spiderMarkerColor, pos, yOffset, drawGuideline);
     }
 
-    @Override
-    public void draw(MarkerRenderer renderer) {
-        if (renderer.renderManager().info == null)
-            return;
-
-        val viewerPos = renderer.renderManager().info.getProjectedView();
-        renderer.push();
-        {
-            color.setToColor4F(RenderSystem::color4f);
-            renderer.translate(
-                ((double) pos.getX()) - viewerPos.x,
-                ((double) pos.getY()) - viewerPos.y - 1d, // 1ブロック下げる
-                ((double) pos.getZ()) - viewerPos.z
-            );
-            markerModel.draw(renderer);
-
-        }
-        renderer.pop();
-
-        if (guidelineModel == null)
-            return;
-
-        renderer.push();
-        {
-            color.setToColor4F(RenderSystem::color4f);
-            renderer.translate(
-                ((double) pos.getX()) - viewerPos.x,
-                ((double) pos.getY()) - viewerPos.y,
-                ((double) pos.getZ()) - viewerPos.z
-            );
-            guidelineModel.draw(renderer);
-        }
-        renderer.pop();
+    public SpawnPointMarker buildSlimeMarker(BlockPos pos, YOffset yOffset) {
+      return new SpawnPointMarker(Texture.SLIME, blockSize, slimeMarkerColor, pos, yOffset, drawGuideline);
     }
+
+    public SpawnPointMarker buildGhastMarker(BlockPos pos, YOffset yOffset) {
+      return new SpawnPointMarker(Texture.GHAST, blockSize, ghastMarkerColor, pos, yOffset, drawGuideline);
+    }
+  }
 }

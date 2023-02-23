@@ -19,53 +19,52 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShapes;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 enum EntitySize {
-    ENDERMAN(0.6F, 2.9F),
-    ZOMBIE(0.6F, 1.95F),
-    SKELETON(0.6F, 1.99F), // zombie より微妙にでかいので判定ではzombieサイズを使うようにした
-    SPIDER(1.4F, 0.9F),
-    SLIME(0.51000005F, 0.51000005F), // smallest size
-    GHAST(4.0F, 4.0F),
+  ENDERMAN(0.6F, 2.9F),
+  ZOMBIE(0.6F, 1.95F),
+  SKELETON(0.6F, 1.99F), // zombie より微妙にでかいので判定ではzombieサイズを使うようにした
+  SPIDER(1.4F, 0.9F),
+  SLIME(0.51000005F, 0.51000005F), // smallest size
+  GHAST(4.0F, 4.0F),
 
-    ;
+  ;
 
-    private final float width;
-    private final float height;
+  private final float width;
+  private final float height;
 
-    // EntityLiving#isNotColliding(IWorldReaderBase)
-    boolean isNotColliding(ClientWorld worldIn, BlockPos pos) {
-        val bb = boundingBox(pos);
-        return !worldIn.containsAnyLiquid(bb)
-            && worldIn.hasNoCollisions(null, bb)
-            && worldIn.checkNoEntityCollision(null, VoxelShapes.create(bb));
-    }
+  // EntityLiving#isNotColliding(IWorldReaderBase)
+  boolean isNotColliding(ClientLevel worldIn, BlockPos pos) {
+    val bb = boundingBox(pos);
+    return !worldIn.containsAnyLiquid(bb)
+      && worldIn.noCollision(null, bb)
+      && worldIn.isUnobstructed(null, Shapes.create(bb));
+  }
 
-    boolean isNotCollidingWithoutOtherEntityCollision(ClientWorld worldIn, BlockPos pos) {
-        val bb = boundingBox(pos);
-        return !worldIn.containsAnyLiquid(bb)
-            && worldIn.hasNoCollisions(null, bb);
-    }
+  boolean isNotCollidingWithoutOtherEntityCollision(ClientLevel worldIn, BlockPos pos) {
+    val bb = boundingBox(pos);
+    return !worldIn.containsAnyLiquid(bb)
+      && worldIn.noCollision(null, bb);
+  }
 
-    AxisAlignedBB boundingBox(BlockPos pos) {
-        return new AxisAlignedBB(
-            (double) pos.getX(),
-            (double) pos.getY(),
-            (double) pos.getZ(),
-            (double) pos.getX() + width,
-            (double) pos.getY() + height,
-            (double) pos.getZ() + width
-        );
-    }
+  AABB boundingBox(BlockPos pos) {
+    return new AABB(
+      pos.getX(),
+      pos.getY(),
+      pos.getZ(),
+      (double) pos.getX() + width,
+      (double) pos.getY() + height,
+      (double) pos.getZ() + width
+    );
+  }
 }

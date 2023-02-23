@@ -23,7 +23,7 @@ import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
 
 abstract class SelectableMode extends PresetMode<SelectableMode> implements Mode.Selectable {
-    SelectableMode(Name name, HudIconResource icon, Priority priority) {
-        super(name, icon, priority);
-    }
+  SelectableMode(Name name, HudIconResource icon, Priority priority) {
+    super(name, icon, priority);
+  }
 }

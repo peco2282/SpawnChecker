@@ -23,114 +23,111 @@ import com.google.common.base.MoreObjects;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.lwjgl.opengl.GL11;
-
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import lombok.NonNull;
+import lombok.val;
 import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
 import net.awairo.minecraft.spawnchecker.mode.YOffset;
 import net.awairo.minecraft.spawnchecker.mode.marker.MarkerModel;
-
-import lombok.NonNull;
-import lombok.val;
+import net.minecraft.resources.ResourceLocation;
 
 public class SpawnPointModel implements MarkerModel {
 
-    private static final double BLOCK_SIZE = 1.0d;
+  private static final double BLOCK_SIZE = 1.0d;
 
-    private final ResourceLocation texture;
-    private final double markerSize;
-    private final double offset;
-    private final YOffset yOffset;
+  private final ResourceLocation texture;
+  private final double markerSize;
+  private final double offset;
+  private final YOffset yOffset;
 
-    private final double oMin;
-    private final double oMax;
-    private final double oMinY;
-    private final double oMaxY;
-    private final double iMin;
-    private final double iMax;
+  private final double oMin;
+  private final double oMax;
+  private final double oMinY;
+  private final double oMaxY;
+  private final double iMin;
+  private final double iMax;
 
-    public SpawnPointModel(@NonNull ResourceLocation texture, double markerSize, double offset, YOffset yOffset) {
-        this.texture = texture;
-        this.markerSize = markerSize;
-        this.offset = offset;
-        this.yOffset = yOffset;
+  public SpawnPointModel(@NonNull ResourceLocation texture, double markerSize, double offset, YOffset yOffset) {
+    this.texture = texture;
+    this.markerSize = markerSize;
+    this.offset = offset;
+    this.yOffset = yOffset;
 
-        this.oMin = 0d - offset;
-        this.oMax = BLOCK_SIZE + offset;
-        this.oMinY = oMin + yOffset.bottomOffset();
-        this.oMaxY = oMax + yOffset.topOffset();
-        val markerSizeOffset = (oMax - markerSize) / 2;
+    this.oMin = 0d - offset;
+    this.oMax = BLOCK_SIZE + offset;
+    this.oMinY = oMin + yOffset.bottomOffset();
+    this.oMaxY = oMax + yOffset.topOffset();
+    val markerSizeOffset = (oMax - markerSize) / 2;
 
-        this.iMin = oMin + markerSizeOffset;
-        this.iMax = oMax - markerSizeOffset;
-    }
+    this.iMin = oMin + markerSizeOffset;
+    this.iMax = oMax - markerSizeOffset;
+  }
 
-    @SuppressWarnings("Duplicates")
-    @Override
-    public void draw(MarkerRenderer renderer) {
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(
-            SourceFactor.SRC_ALPHA.param, DestFactor.ONE_MINUS_SRC_ALPHA.param,
-            SourceFactor.ONE.param, DestFactor.ZERO.param
-        );
-        RenderSystem.enableTexture();
+  @SuppressWarnings("Duplicates")
+  @Override
+  public void draw(MarkerRenderer renderer) {
+    RenderSystem.enableBlend();
+    RenderSystem.blendFuncSeparate(
+      SourceFactor.SRC_ALPHA.value, DestFactor.ONE_MINUS_SRC_ALPHA.value,
+      SourceFactor.ONE.value, DestFactor.ZERO.value
+    );
+    RenderSystem.enableTexture();
 
-        renderer.bindTexture(texture);
+    renderer.bindTexture(texture);
 
-        renderer.begin(GL11.GL_QUADS, DefaultVertexFormats.POSITION_TEX);
+    renderer.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
 
-        float minU = 0.0f;
-        float maxU = 0.5f;
-        float minV = 0.0f;
-        float maxV = 0.5f;
-        // top
-        renderer.addVertex(iMin, oMaxY, iMin, minU, minV);
-        renderer.addVertex(iMin, oMaxY, iMax, minU, maxV);
-        renderer.addVertex(iMax, oMaxY, iMax, maxU, maxV);
-        renderer.addVertex(iMax, oMaxY, iMin, maxU, minV);
-        // bottom
-        renderer.addVertex(iMin, oMinY, iMin, minU, minV);
-        renderer.addVertex(iMax, oMinY, iMin, maxU, minV);
-        renderer.addVertex(iMax, oMinY, iMax, maxU, maxV);
-        renderer.addVertex(iMin, oMinY, iMax, minU, maxV);
-        // east
-        renderer.addVertex(iMin, iMin, oMin, minU, minV);
-        renderer.addVertex(iMin, iMax, oMin, minU, maxV);
-        renderer.addVertex(iMax, iMax, oMin, maxU, maxV);
-        renderer.addVertex(iMax, iMin, oMin, maxU, minV);
-        // west
-        renderer.addVertex(iMin, iMin, oMax, minU, minV);
-        renderer.addVertex(iMax, iMin, oMax, maxU, minV);
-        renderer.addVertex(iMax, iMax, oMax, maxU, maxV);
-        renderer.addVertex(iMin, iMax, oMax, minU, maxV);
-        // north
-        renderer.addVertex(oMin, iMin, iMin, minU, minV);
-        renderer.addVertex(oMin, iMin, iMax, minU, maxV);
-        renderer.addVertex(oMin, iMax, iMax, maxU, maxV);
-        renderer.addVertex(oMin, iMax, iMin, maxU, minV);
-        // south
-        renderer.addVertex(oMax, iMin, iMin, minU, minV);
-        renderer.addVertex(oMax, iMax, iMin, maxU, minV);
-        renderer.addVertex(oMax, iMax, iMax, maxU, maxV);
-        renderer.addVertex(oMax, iMin, iMax, minU, maxV);
+    float minU = 0.0f;
+    float maxU = 0.5f;
+    float minV = 0.0f;
+    float maxV = 0.5f;
+    // top
+    renderer.addVertex(iMin, oMaxY, iMin, minU, minV);
+    renderer.addVertex(iMin, oMaxY, iMax, minU, maxV);
+    renderer.addVertex(iMax, oMaxY, iMax, maxU, maxV);
+    renderer.addVertex(iMax, oMaxY, iMin, maxU, minV);
+    // bottom
+    renderer.addVertex(iMin, oMinY, iMin, minU, minV);
+    renderer.addVertex(iMax, oMinY, iMin, maxU, minV);
+    renderer.addVertex(iMax, oMinY, iMax, maxU, maxV);
+    renderer.addVertex(iMin, oMinY, iMax, minU, maxV);
+    // east
+    renderer.addVertex(iMin, iMin, oMin, minU, minV);
+    renderer.addVertex(iMin, iMax, oMin, minU, maxV);
+    renderer.addVertex(iMax, iMax, oMin, maxU, maxV);
+    renderer.addVertex(iMax, iMin, oMin, maxU, minV);
+    // west
+    renderer.addVertex(iMin, iMin, oMax, minU, minV);
+    renderer.addVertex(iMax, iMin, oMax, maxU, minV);
+    renderer.addVertex(iMax, iMax, oMax, maxU, maxV);
+    renderer.addVertex(iMin, iMax, oMax, minU, maxV);
+    // north
+    renderer.addVertex(oMin, iMin, iMin, minU, minV);
+    renderer.addVertex(oMin, iMin, iMax, minU, maxV);
+    renderer.addVertex(oMin, iMax, iMax, maxU, maxV);
+    renderer.addVertex(oMin, iMax, iMin, maxU, minV);
+    // south
+    renderer.addVertex(oMax, iMin, iMin, minU, minV);
+    renderer.addVertex(oMax, iMax, iMin, maxU, minV);
+    renderer.addVertex(oMax, iMax, iMax, maxU, maxV);
+    renderer.addVertex(oMax, iMin, iMax, minU, maxV);
 
-        renderer.draw();
-        RenderSystem.disableBlend();
-    }
+    renderer.draw();
+    RenderSystem.disableBlend();
+  }
 
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("markerSize", markerSize)
-            .add("topOffset", offset)
-            .add("yOffset", yOffset)
-            .add("oMin", oMin)
-            .add("oMax", oMax)
-            .add("oMaxY", oMaxY)
-            .add("iMin", iMin)
-            .add("iMax", iMax)
-            .toString();
-    }
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("markerSize", markerSize)
+      .add("topOffset", offset)
+      .add("yOffset", yOffset)
+      .add("oMin", oMin)
+      .add("oMax", oMax)
+      .add("oMaxY", oMaxY)
+      .add("iMin", iMin)
+      .add("iMax", iMax)
+      .toString();
+  }
 }

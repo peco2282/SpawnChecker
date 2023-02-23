@@ -25,12 +25,12 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum UsingHands {
-    RIGHT(true, false),
-    LEFT(false, true),
-    BOTH(true, true);
+  RIGHT(true, false),
+  LEFT(false, true),
+  BOTH(true, true);
 
-    public static final UsingHands DEFAULT = BOTH;
+  public static final UsingHands DEFAULT = BOTH;
 
-    private final boolean useRightHand;
-    private final boolean useLeftHand;
+  private final boolean useRightHand;
+  private final boolean useLeftHand;
 }

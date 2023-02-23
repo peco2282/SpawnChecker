@@ -19,6 +19,14 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
+import lombok.val;
+import net.awairo.minecraft.spawnchecker.api.PlayerPos;
+import net.awairo.minecraft.spawnchecker.api.ScanRange;
+import net.awairo.minecraft.spawnchecker.util.CubeCoordinateIterator;
+import net.minecraft.core.BlockPos;
+
 import java.util.Iterator;
 import java.util.Spliterator;
 import java.util.Spliterators;
@@ -26,69 +34,59 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.CubeCoordinateIterator;
-
-import net.awairo.minecraft.spawnchecker.api.PlayerPos;
-import net.awairo.minecraft.spawnchecker.api.ScanRange;
-
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
-import lombok.val;
-
 @Value
 final class ScanArea {
-    private static int CHARACTERISTICS = Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL;
-    private static boolean PARALLEL = true;
+  private static int CHARACTERISTICS = Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL;
+  private static boolean PARALLEL = true;
 
-    private final PlayerPos playerPos;
-    private final ScanRange.Horizontal hRange;
-    private final ScanRange.Vertical vRange;
+  private final PlayerPos playerPos;
+  private final ScanRange.Horizontal hRange;
+  private final ScanRange.Vertical vRange;
 
-    Stream<XZ> xzStream() {
-        val minX = playerPos.blockPos().getX() - hRange.value();
-        val maxX = playerPos.blockPos().getX() + hRange.value();
-        val y = playerPos.blockPos().getY();
-        val maxZ = playerPos.blockPos().getZ() + hRange.value();
-        val minZ = playerPos.blockPos().getZ() - hRange.value();
-        val estSize = (hRange.value() * 2 + 1) ^ 2;
-        val posIter = new BlockPosIterator(new CubeCoordinateIterator(minX, y, minZ, maxX, y, maxZ));
+  Stream<XZ> xzStream() {
+    val minX = playerPos.blockPos().getX() - hRange.value();
+    val maxX = playerPos.blockPos().getX() + hRange.value();
+    val y = playerPos.blockPos().getY();
+    val maxZ = playerPos.blockPos().getZ() + hRange.value();
+    val minZ = playerPos.blockPos().getZ() - hRange.value();
+    val estSize = (hRange.value() * 2 + 1) ^ 2;
+    val posIter = new BlockPosIterator(new CubeCoordinateIterator(minX, y, minZ, maxX, y, maxZ));
 
-        return StreamSupport
-            .stream(Spliterators.spliterator(posIter, estSize, CHARACTERISTICS), PARALLEL)
-            .map(XZ::new);
+    return StreamSupport
+      .stream(Spliterators.spliterator(posIter, estSize, CHARACTERISTICS), PARALLEL)
+      .map(XZ::new);
+  }
+
+  @RequiredArgsConstructor
+  private static final class BlockPosIterator implements Iterator<BlockPos> {
+    private final CubeCoordinateIterator coords;
+
+    @Override
+    public boolean hasNext() {
+      return coords.hasNext();
     }
 
-    @RequiredArgsConstructor
-    private static final class BlockPosIterator implements Iterator<BlockPos> {
-        private final CubeCoordinateIterator coords;
+    @Override
+    public BlockPos next() {
+      return new BlockPos(coords.getX(), coords.getY(), coords.getZ());
+    }
+  }
 
-        @Override
-        public boolean hasNext() {
-            return coords.hasNext();
-        }
+  @Value
+  final class XZ {
+    // Area内のいずれかのx,z座標でPlayerと同じy座標のpos
+    final BlockPos playerYPos;
 
-        @Override
-        public BlockPos next() {
-            return new BlockPos(coords.getX(), coords.getY(), coords.getZ());
-        }
+    IntStream yStream() {
+      return IntStream.range(playerYPos.getY() - vRange.value(), playerYPos.getY() + vRange.value() + 1);
     }
 
-    @Value
-    final class XZ {
-        // Area内のいずれかのx,z座標でPlayerと同じy座標のpos
-        final BlockPos playerYPos;
-
-        IntStream yStream() {
-            return IntStream.range(playerYPos.getY() - vRange.value(), playerYPos.getY() + vRange.value() + 1);
-        }
-
-        BlockPos withY(int y) {
-            return new BlockPos(playerYPos.getX(), y, playerYPos.getZ());
-        }
-
-        Stream<BlockPos> posStream() {
-            return yStream().mapToObj(this::withY);
-        }
+    BlockPos withY(int y) {
+      return new BlockPos(playerYPos.getX(), y, playerYPos.getZ());
     }
+
+    Stream<BlockPos> posStream() {
+      return yStream().mapToObj(this::withY);
+    }
+  }
 }

@@ -19,154 +19,147 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
 import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-
-import lombok.Getter;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Value;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import lombok.*;
 import lombok.extern.log4j.Log4j2;
-import lombok.val;
+import net.minecraft.network.chat.BaseComponent;
+import net.minecraft.resources.ResourceLocation;
 
 public interface HudData {
 
-    Visibility draw(HudRenderer renderer, long elapsedMillis);
+  Visibility draw(HudRenderer renderer, long elapsedMillis);
 
-    enum Visibility {SHOW, HIDE}
+  enum Visibility {SHOW, HIDE}
 
-    @Log4j2
-    @RequiredArgsConstructor
-    @Getter
-    @SuppressWarnings("WeakerAccess")
-    class Simple implements HudData {
-        protected static final Color BASE_COLOR = Color.of(255, 255, 255);
-        protected static final float TEXT_X = 20f;
-        protected static final float TEXT_Y = 5f;
-        protected static final double ICON_SIZE = 16d;
+  @Log4j2
+  @RequiredArgsConstructor
+  @Getter
+  @SuppressWarnings("WeakerAccess")
+  class Simple implements HudData {
+    protected static final Color BASE_COLOR = Color.of(255, 255, 255);
+    protected static final float TEXT_X = 20f;
+    protected static final float TEXT_Y = 5f;
+    protected static final double ICON_SIZE = 16d;
 
-        @NonNull
-        private final ITextComponent text;
-        @NonNull
-        private final ResourceLocation icon;
-        @NonNull
-        private final ShowDuration showDuration;
-        @NonNull
-        private final Color baseColor;
+    @NonNull
+    private final BaseComponent text;
+    @NonNull
+    private final ResourceLocation icon;
+    @NonNull
+    private final ShowDuration showDuration;
+    @NonNull
+    private final Color baseColor;
 
-        public Simple(ITextComponent text, ResourceLocation icon, ShowDuration showDuration) {
-            this(text, icon, showDuration, BASE_COLOR);
-        }
-
-        @Override
-        public Visibility draw(@NonNull HudRenderer renderer, long elapsedMillis) {
-            if (showDuration.isLessThan(elapsedMillis)) {
-                val stack = new MatrixStack();
-                val color = baseColor.withAlpha(computeAlpha(elapsedMillis));
-                if (!color.isTransparent()) {
-                    setUpGlState();
-                    drawIcon(stack, icon, renderer, color);
-                    drawText(stack, text, renderer, color);
-                }
-                if (elapsedMillis == 0) {
-                    log.debug(
-                        "Show HudData.(text={}, icon={}, showDuration={}, baseColor={}, elapsedMillis={}, color={})",
-                        text, icon, showDuration, baseColor, elapsedMillis, color
-                    );
-                }
-                return Visibility.SHOW;
-            }
-            log.debug(
-                "Hide HudData.(text={}, icon={}, showDuration={}, baseColor={}, elapsedMillis={})",
-                text, icon, showDuration, baseColor, elapsedMillis
-            );
-            return Visibility.HIDE;
-        }
-
-        protected float computeAlpha(long elapsedMillis) {
-            val rate = showDuration.progressRate(elapsedMillis);
-            if (rate <= 0.05f)
-                return Math.min(rate * 20, 1f);
-            if (rate >= 0.9f)
-                return Math.min((1 - rate) * 10, 1f);
-            return 1f;
-        }
-
-        protected void setUpGlState() {
-            RenderSystem.enableTexture();
-            RenderSystem.enableTexture();
-            RenderSystem.enableBlend();
-            RenderSystem.blendFuncSeparate(
-                SourceFactor.SRC_ALPHA.param, DestFactor.ONE_MINUS_SRC_ALPHA.param,
-                SourceFactor.ONE.param, DestFactor.ZERO.param
-            );
-        }
-
-        @SuppressWarnings("Duplicates")
-        protected void drawIcon(MatrixStack stack, ResourceLocation icon, HudRenderer renderer, Color color) {
-            final double xMin, yMin, xMax, yMax, z;
-            final float uMin, uMax, vMin, vMax;
-            xMin = yMin = z = 0d;
-            xMax = yMax = ICON_SIZE;
-            uMin = vMin = 0f;
-            uMax = vMax = 1f;
-            renderer.bindTexture(icon);
-            renderer.beginQuads(DefaultVertexFormats.POSITION_COLOR_TEX);
-            renderer.addVertex(xMin, yMin, z, uMin, vMin, color);
-            renderer.addVertex(xMin, yMax, z, uMin, vMax, color);
-            renderer.addVertex(xMax, yMax, z, uMax, vMax, color);
-            renderer.addVertex(xMax, yMin, z, uMax, vMin, color);
-            renderer.draw();
-        }
-
-        protected void drawText(MatrixStack stack, ITextComponent text, HudRenderer renderer, Color color) {
-            if (isTransparentText(color))
-                return;
-
-            renderer.fontRenderer().drawStringWithShadow(stack, text.getString(), Simple.TEXT_X, Simple.TEXT_Y, color.toInt());
-        }
-
-        // alpha = 3 以下だと不透明で描画されたためスキップした
-        protected boolean isTransparentText(Color color) {
-            return color.intAlpha() < 4;
-        }
+    public Simple(BaseComponent text, ResourceLocation icon, ShowDuration showDuration) {
+      this(text, icon, showDuration, BASE_COLOR);
     }
 
-    @SuppressWarnings("WeakerAccess")
-    final class ModeActivated extends Simple {
-        public ModeActivated(@NonNull Mode mode, @NonNull ShowDuration showDuration) {
-            super(mode.name().textComponent(), mode.icon(), showDuration);
+    @Override
+    public Visibility draw(@NonNull HudRenderer renderer, long elapsedMillis) {
+      if (showDuration.isLessThan(elapsedMillis)) {
+        val stack = new PoseStack();
+        val color = baseColor.withAlpha(computeAlpha(elapsedMillis));
+        if (!color.isTransparent()) {
+          setUpGlState();
+          drawIcon(stack, icon, renderer, color);
+          drawText(stack, text, renderer, color);
         }
+        if (elapsedMillis == 0) {
+          log.debug(
+            "Show HudData.(text={}, icon={}, showDuration={}, baseColor={}, elapsedMillis={}, color={})",
+            text, icon, showDuration, baseColor, elapsedMillis, color
+          );
+        }
+        return Visibility.SHOW;
+      }
+      log.debug(
+        "Hide HudData.(text={}, icon={}, showDuration={}, baseColor={}, elapsedMillis={})",
+        text, icon, showDuration, baseColor, elapsedMillis
+      );
+      return Visibility.HIDE;
     }
 
-    @SuppressWarnings("WeakerAccess")
-    @Value
-    final class ShowDuration {
-        public static final long MIN_VALUE = 0L;
-        public static final long MAX_VALUE = 10_000L;
-        public static final ShowDuration DEFAULT = new ShowDuration(5000L);
-
-        public ShowDuration(long milliSeconds) {
-            if (milliSeconds < MIN_VALUE || milliSeconds > MAX_VALUE)
-                throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
-
-            this.milliSeconds = milliSeconds;
-        }
-
-        private final long milliSeconds;
-
-        public boolean isLessThan(long elapsedMillis) {
-            return elapsedMillis < milliSeconds;
-        }
-
-        public float progressRate(long elapsedMillis) {
-            return Math.min((float) elapsedMillis / (float) milliSeconds, 1f);
-        }
+    protected float computeAlpha(long elapsedMillis) {
+      val rate = showDuration.progressRate(elapsedMillis);
+      if (rate <= 0.05f)
+        return Math.min(rate * 20, 1f);
+      if (rate >= 0.9f)
+        return Math.min((1 - rate) * 10, 1f);
+      return 1f;
     }
+
+    protected void setUpGlState() {
+      RenderSystem.enableTexture();
+      RenderSystem.enableTexture();
+      RenderSystem.enableBlend();
+      RenderSystem.blendFuncSeparate(
+        SourceFactor.SRC_ALPHA.value, DestFactor.ONE_MINUS_SRC_ALPHA.value,
+        SourceFactor.ONE.value, DestFactor.ZERO.value
+      );
+    }
+
+    @SuppressWarnings("Duplicates")
+    protected void drawIcon(PoseStack stack, ResourceLocation icon, HudRenderer renderer, Color color) {
+      final double xMin, yMin, xMax, yMax, z;
+      final float uMin, uMax, vMin, vMax;
+      xMin = yMin = z = 0d;
+      xMax = yMax = ICON_SIZE;
+      uMin = vMin = 0f;
+      uMax = vMax = 1f;
+      renderer.bindTexture(icon);
+      renderer.beginQuads(DefaultVertexFormat.POSITION_COLOR_TEX);
+      renderer.addVertex(xMin, yMin, z, uMin, vMin, color);
+      renderer.addVertex(xMin, yMax, z, uMin, vMax, color);
+      renderer.addVertex(xMax, yMax, z, uMax, vMax, color);
+      renderer.addVertex(xMax, yMin, z, uMax, vMin, color);
+      renderer.draw();
+    }
+
+    protected void drawText(PoseStack stack, BaseComponent text, HudRenderer renderer, Color color) {
+      if (isTransparentText(color))
+        return;
+
+      renderer.fontRenderer().drawShadow(stack, text.getString(), Simple.TEXT_X, Simple.TEXT_Y, color.toInt());
+    }
+
+    // alpha = 3 以下だと不透明で描画されたためスキップした
+    protected boolean isTransparentText(Color color) {
+      return color.intAlpha() < 4;
+    }
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  final class ModeActivated extends Simple {
+    public ModeActivated(@NonNull Mode mode, @NonNull ShowDuration showDuration) {
+      super(mode.name().textComponent(), mode.icon(), showDuration);
+    }
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  @Value
+  final class ShowDuration {
+    public static final long MIN_VALUE = 0L;
+    public static final long MAX_VALUE = 10_000L;
+    public static final ShowDuration DEFAULT = new ShowDuration(5000L);
+    private final long milliSeconds;
+
+    public ShowDuration(long milliSeconds) {
+      if (milliSeconds < MIN_VALUE || milliSeconds > MAX_VALUE)
+        throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
+
+      this.milliSeconds = milliSeconds;
+    }
+
+    public boolean isLessThan(long elapsedMillis) {
+      return elapsedMillis < milliSeconds;
+    }
+
+    public float progressRate(long elapsedMillis) {
+      return Math.min((float) elapsedMillis / (float) milliSeconds, 1f);
+    }
+  }
 }

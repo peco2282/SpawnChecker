@@ -20,10 +20,11 @@
 package net.awairo.minecraft.spawnchecker.api;
 
 public interface Marker {
-    void draw(MarkerRenderer renderer);
+  void draw(MarkerRenderer renderer);
 
-    @Override
-    int hashCode();
-    @Override
-    boolean equals(Object obj);
+  @Override
+  int hashCode();
+
+  @Override
+  boolean equals(Object obj);
 }

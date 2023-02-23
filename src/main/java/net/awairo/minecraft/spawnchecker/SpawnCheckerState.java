@@ -19,103 +19,101 @@
 
 package net.awairo.minecraft.spawnchecker;
 
-import java.util.Comparator;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
-import javax.annotation.Nullable;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.Util;
-import net.minecraft.world.IWorld;
-
-import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
-import net.awairo.minecraft.spawnchecker.hud.HudRendererImpl;
-import net.awairo.minecraft.spawnchecker.keybinding.KeyBindingState;
-import net.awairo.minecraft.spawnchecker.mode.ModeState;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
+import net.awairo.minecraft.spawnchecker.hud.HudRendererImpl;
+import net.awairo.minecraft.spawnchecker.keybinding.KeyBindingState;
+import net.awairo.minecraft.spawnchecker.mode.ModeState;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.world.level.LevelAccessor;
+
+import javax.annotation.Nullable;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 @Log4j2
 final class SpawnCheckerState {
 
-    private final Set<IWorld> loadedWorldClient = new ConcurrentSkipListSet<>(Comparator.comparing(Object::toString));
+  private final Set<LevelAccessor> loadedWorldClient = new ConcurrentSkipListSet<>(Comparator.comparing(Object::toString));
 
-    private final Minecraft minecraft;
+  private final Minecraft minecraft;
 
-    @Getter
-    private final SpawnCheckerConfig config;
+  @Getter
+  private final SpawnCheckerConfig config;
 
-    @Getter
-    private final KeyBindingState keyBindingStates;
-    @Getter
-    private final ModeState modeState;
+  @Getter
+  private final KeyBindingState keyBindingStates;
+  @Getter
+  private final ModeState modeState;
 
-    private final HudRendererImpl hudRenderer;
+  private final HudRendererImpl hudRenderer;
 
-    @Getter(AccessLevel.PACKAGE)
-    private final SpawnCheckerCommands commands;
+  @Getter(AccessLevel.PACKAGE)
+  private final SpawnCheckerCommands commands;
 
-    private int tickCount = 0;
+  private int tickCount = 0;
 
-    @Nullable
-    private ClientPlayerEntity player = null;
+  @Nullable
+  private LocalPlayer player = null;
 
-    SpawnCheckerState(Minecraft minecraft, SpawnCheckerConfig config) {
-        this.minecraft = minecraft;
-        this.config = config;
-        hudRenderer = new HudRendererImpl(minecraft, config);
-        modeState = new ModeState(minecraft, config, hudRenderer::setData);
-        keyBindingStates = new KeyBindingState(modeState, config);
-        commands = new SpawnCheckerCommands(config);
+  SpawnCheckerState(Minecraft minecraft, SpawnCheckerConfig config) {
+    this.minecraft = minecraft;
+    this.config = config;
+    hudRenderer = new HudRendererImpl(minecraft, config);
+    modeState = new ModeState(minecraft, config, hudRenderer::setData);
+    keyBindingStates = new KeyBindingState(modeState, config);
+    commands = new SpawnCheckerCommands(config);
+  }
+
+  void initialize() {
+    modeState.initialize();
+  }
+
+  void loadWorld(LevelAccessor world) {
+    if (world instanceof ClientLevel) {
+      loadedWorldClient.add(world);
+      modeState.loadWorldClient((ClientLevel) world);
     }
+  }
 
-    void initialize() {
-        modeState.initialize();
+  void unloadWorld(LevelAccessor world) {
+    if (world instanceof ClientLevel) {
+      modeState.unloadWorldClient((ClientLevel) world);
+      loadedWorldClient.remove(world);
     }
+  }
 
-    void loadWorld(IWorld world) {
-        if (world instanceof ClientWorld) {
-            loadedWorldClient.add(world);
-            modeState.loadWorldClient((ClientWorld) world);
-        }
+  void onTickStart() {
+    if (player != minecraft.player) {
+      player = minecraft.player;
+      if (player != null)
+        commands.registerTo(player);
     }
+  }
 
-    void unloadWorld(IWorld world) {
-        if (world instanceof ClientWorld) {
-            modeState.unloadWorldClient((ClientWorld) world);
-            loadedWorldClient.remove(world);
-        }
-    }
+  void onTickEnd() {
+    val nowMilliTime = Util.getMillis();
+    tickCount++;
+    keyBindingStates.onTick(nowMilliTime);
+    modeState.onTick(tickCount, nowMilliTime);
+  }
 
-    void onTickStart() {
-        if (player != minecraft.player) {
-            player = minecraft.player;
-            if (player != null)
-                commands.registerTo(player);
-        }
-    }
+  boolean started() {
+    return enabled() && !loadedWorldClient.isEmpty();
+  }
 
-    void onTickEnd() {
-        val nowMilliTime = Util.milliTime();
-        tickCount++;
-        keyBindingStates.onTick(nowMilliTime);
-        modeState.onTick(tickCount, nowMilliTime);
-    }
+  private boolean enabled() {
+    return config.enabled();
+  }
 
-    boolean started() {
-        return enabled() && !loadedWorldClient.isEmpty();
-    }
-
-    private boolean enabled() {
-        return config.enabled();
-    }
-
-    void renderHud(float partialTicks) {
-        hudRenderer.render(tickCount, partialTicks);
-    }
+  void renderHud(float partialTicks) {
+    hudRenderer.render(tickCount, partialTicks);
+  }
 }

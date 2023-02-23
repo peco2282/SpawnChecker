@@ -19,16 +19,15 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
-import net.minecraftforge.fml.config.ModConfig;
-
 import lombok.RequiredArgsConstructor;
+import net.minecraftforge.fml.config.ModConfig;
 
 @RequiredArgsConstructor
 public final class ConfigHolder {
 
-    private final SpawnCheckerConfig config;
+  private final SpawnCheckerConfig config;
 
-    public void loadConfig(ModConfig modConfig) {
-        config.underlying(modConfig.getConfigData());
-    }
+  public void loadConfig(ModConfig modConfig) {
+    config.underlying(modConfig.getConfigData());
+  }
 }

@@ -19,44 +19,44 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import java.util.stream.Stream;
-
 import net.awairo.minecraft.spawnchecker.api.Marker;
 import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.api.PlayerPos;
 import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
 
+import java.util.stream.Stream;
+
 public class SpawnerVisualizerMode extends ConditionalMode {
-    static final String TRANSLATION_KEY = "spawnchecker.mode.spawnerVisualizer";
-    static final Name NAME = new Name(TRANSLATION_KEY);
-    static final Priority PRIORITY = new Priority(100);
+  static final String TRANSLATION_KEY = "spawnchecker.mode.spawnerVisualizer";
+  static final Name NAME = new Name(TRANSLATION_KEY);
+  static final Priority PRIORITY = new Priority(100);
 
-    public SpawnerVisualizerMode() {
-        super(NAME, HudIconResource.SPAWNER_VISUALIZER, PRIORITY);
-    }
+  public SpawnerVisualizerMode() {
+    super(NAME, HudIconResource.SPAWNER_VISUALIZER, PRIORITY);
+  }
 
-    @Override
-    public boolean canActivate(PlayerPos playerPos, Mode.State state) {
-        return false;
-    }
+  @Override
+  public boolean canActivate(PlayerPos playerPos, Mode.State state) {
+    return false;
+  }
 
-    @Override
-    public boolean canContinue(PlayerPos playerPos, Mode.State state) {
-        return false;
-    }
+  @Override
+  public boolean canContinue(PlayerPos playerPos, Mode.State state) {
+    return false;
+  }
 
-    @Override
-    protected void setUp() {
+  @Override
+  protected void setUp() {
 
-    }
+  }
 
-    @Override
-    protected void tearDown() {
+  @Override
+  protected void tearDown() {
 
-    }
+  }
 
-    @Override
-    public Stream<Marker> update(State modeState, PlayerPos playerPos) {
-        return Stream.empty();
-    }
+  @Override
+  public Stream<Marker> update(State modeState, PlayerPos playerPos) {
+    return Stream.empty();
+  }
 }

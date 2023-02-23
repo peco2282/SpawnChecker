@@ -19,71 +19,70 @@
 
 package net.awairo.minecraft.spawnchecker.util;
 
-import java.util.function.Supplier;
-
 import lombok.NonNull;
 import lombok.val;
 
+import java.util.function.Supplier;
+
 public class LazyCachedSupplier<T> implements Supplier<T> {
 
-    public static <T> LazyCachedSupplier<T> of(@NonNull Supplier<? extends T> supplier) {
-        if (!(supplier instanceof LazyCachedSupplier))
-            return new LazyCachedSupplier<>(supplier);
+  private static final Object UNSET = new Object();
+  private static final Supplier<?> DUMMY_SUPPLIER = () -> {
+    throw new UnsupportedOperationException("DUMMY_SUPPLIER");
+  };
+  private final Supplier<? extends T> underlying;
+  private volatile Object cache;
 
-        @SuppressWarnings("unchecked")
-        val ret = (LazyCachedSupplier<T>) supplier;
-        return ret;
-    }
+  private LazyCachedSupplier(Supplier<? extends T> supplier) {
+    this(supplier, unset());
+  }
 
-    public static <T> LazyCachedSupplier<T> withCached(@NonNull T value) {
-        return new LazyCachedSupplier<>(dummySupplier(), value);
-    }
+  private LazyCachedSupplier(Supplier<? extends T> supplier, T value) {
+    this.underlying = supplier;
+    this.cache = value;
+  }
 
-    private final Supplier<? extends T> underlying;
-    private volatile Object cache;
+  public static <T> LazyCachedSupplier<T> of(@NonNull Supplier<? extends T> supplier) {
+    if (!(supplier instanceof LazyCachedSupplier))
+      return new LazyCachedSupplier<>(supplier);
 
-    private LazyCachedSupplier(Supplier<? extends T> supplier) {
-        this(supplier, unset());
-    }
+    @SuppressWarnings("unchecked")
+    val ret = (LazyCachedSupplier<T>) supplier;
+    return ret;
+  }
 
-    private LazyCachedSupplier(Supplier<? extends T> supplier, T value) {
-        this.underlying = supplier;
-        this.cache = value;
-    }
+  public static <T> LazyCachedSupplier<T> withCached(@NonNull T value) {
+    return new LazyCachedSupplier<>(dummySupplier(), value);
+  }
 
-    @Override
-    public T get() {
+  @SuppressWarnings("unchecked")
+  private static <T> T unset() {
+    return (T) UNSET;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> Supplier<T> dummySupplier() {
+    return (Supplier<T>) DUMMY_SUPPLIER;
+  }
+
+  @Override
+  public T get() {
+    if (cache == UNSET)
+      synchronized (this) {
         if (cache == UNSET)
-            synchronized (this) {
-                if (cache == UNSET)
-                    cache = underlying.get();
-            }
-
-        @SuppressWarnings("unchecked")
-        T ret = (T) cache;
-        return ret;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-            "LazyCachedSupplier(cache=%s, underlying=%s)",
-            (cache == UNSET ? "none" : "'" + cache + "'"), underlying
-        );
-    }
-
-    private static final Object UNSET = new Object();
-    private static final Supplier<?> DUMMY_SUPPLIER = () -> {
-        throw new UnsupportedOperationException("DUMMY_SUPPLIER");
-    };
+          cache = underlying.get();
+      }
 
     @SuppressWarnings("unchecked")
-    private static <T> T unset() {
-        return (T) UNSET;
-    }
+    T ret = (T) cache;
+    return ret;
+  }
 
-    @SuppressWarnings("unchecked")
-    private static <T> Supplier<T> dummySupplier() {
-        return (Supplier<T>) DUMMY_SUPPLIER;
-    }
+  @Override
+  public String toString() {
+    return String.format(
+      "LazyCachedSupplier(cache=%s, underlying=%s)",
+      (cache == UNSET ? "none" : "'" + cache + "'"), underlying
+    );
+  }
 }

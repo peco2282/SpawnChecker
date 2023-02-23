@@ -19,169 +19,161 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
-import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
-import net.minecraftforge.common.ForgeConfigSpec.IntValue;
-
+import lombok.NonNull;
 import net.awairo.minecraft.spawnchecker.api.Brightness;
 import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.api.ScanRange.Horizontal;
 import net.awairo.minecraft.spawnchecker.api.ScanRange.Vertical;
 import net.awairo.minecraft.spawnchecker.mode.SpawnCheckMode;
 import net.awairo.minecraft.spawnchecker.mode.UpdateTimer.Interval;
-
-import lombok.NonNull;
-import lombok.var;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.EnumValue;
+import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 
 import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
 
 public final class ModeConfig {
-    private static final String PATH = "mode";
+  private static final String PATH = "mode";
 
-    private final Updater updater;
+  private final Updater updater;
+  private final ConfigValue<String> selectedModeNameValue;
 
-    ModeConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
-        this.updater = updater;
+  // region Selected mode name
+  private final IntValue checkIntervalValue;
+  private final IntValue horizontalRangeValue;
+  private final IntValue verticalRangeValue;
 
-        builder.push(PATH);
+  // endregion
 
-        selectedModeNameValue = builder
-            .comment(
-                " Last selected mode id."
-            )
-            .translation(
-                configGuiKey(PATH, "selectedMode")
-            )
-            .define(
-                "selectedMode",
-                SpawnCheckMode.TRANSLATION_KEY
-            );
+  // region Check interval
+  private final EnumValue<Brightness> brightnessValue;
+  private Interval checkIntervalValueCache;
 
-        checkIntervalValue = builder
-            .comment(
-                " Minimum scan interval. (ms)",
-                defaultMinMax(Interval.DEFAULT.milliSeconds(), Interval.MIN_VALUE, Interval.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "scan.interval")
-            )
-            .defineInRange(
-                "scan.interval",
-                Interval.DEFAULT::milliSeconds, Interval.MIN_VALUE, Interval.MAX_VALUE
-            );
+  ModeConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
+    this.updater = updater;
 
-        horizontalRangeValue = builder
-            .comment(
-                " Horizontal range of scan.",
-                defaultMinMax(Horizontal.DEFAULT.value(), Horizontal.MIN_VALUE, Horizontal.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "scan.horizontalRange")
-            )
-            .defineInRange(
-                "scan.horizontalRange",
-                Horizontal.DEFAULT::value, Horizontal.MIN_VALUE, Horizontal.MAX_VALUE
-            );
+    builder.push(PATH);
 
-        verticalRangeValue = builder
-            .comment(
-                " Vertical range of scan.",
-                defaultMinMax(Vertical.DEFAULT.value(), Vertical.MIN_VALUE, Vertical.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "scan.verticalRange")
-            )
-            .defineInRange(
-                "scan.verticalRange",
-                Vertical.DEFAULT::value, Vertical.MIN_VALUE, Vertical.MAX_VALUE
-            );
+    selectedModeNameValue = builder
+      .comment(
+        " Last selected mode id."
+      )
+      .translation(
+        configGuiKey(PATH, "selectedMode")
+      )
+      .define(
+        "selectedMode",
+        SpawnCheckMode.TRANSLATION_KEY
+      );
 
-        brightnessValue = builder
-            .comment(
-                " Marker brightness.",
-                defaultValue(Brightness.DEFAULT),
-                allowValues(Brightness.values())
-            )
-            .translation(
-                configGuiKey(PATH, "marker.brightness")
-            )
-            .defineEnum(
-                "marker.brightness",
-                Brightness.DEFAULT
-            );
+    checkIntervalValue = builder
+      .comment(
+        " Minimum scan interval. (ms)",
+        defaultMinMax(Interval.DEFAULT.milliSeconds(), Interval.MIN_VALUE, Interval.MAX_VALUE)
+      )
+      .translation(
+        configGuiKey(PATH, "scan.interval")
+      )
+      .defineInRange(
+        "scan.interval",
+        Interval.DEFAULT::milliSeconds, Interval.MIN_VALUE, Interval.MAX_VALUE
+      );
 
-        builder.pop();
-    }
+    horizontalRangeValue = builder
+      .comment(
+        " Horizontal range of scan.",
+        defaultMinMax(Horizontal.DEFAULT.value(), Horizontal.MIN_VALUE, Horizontal.MAX_VALUE)
+      )
+      .translation(
+        configGuiKey(PATH, "scan.horizontalRange")
+      )
+      .defineInRange(
+        "scan.horizontalRange",
+        Horizontal.DEFAULT::value, Horizontal.MIN_VALUE, Horizontal.MAX_VALUE
+      );
 
-    // region Selected mode name
+    verticalRangeValue = builder
+      .comment(
+        " Vertical range of scan.",
+        defaultMinMax(Vertical.DEFAULT.value(), Vertical.MIN_VALUE, Vertical.MAX_VALUE)
+      )
+      .translation(
+        configGuiKey(PATH, "scan.verticalRange")
+      )
+      .defineInRange(
+        "scan.verticalRange",
+        Vertical.DEFAULT::value, Vertical.MIN_VALUE, Vertical.MAX_VALUE
+      );
 
-    private final ConfigValue<String> selectedModeNameValue;
+    brightnessValue = builder
+      .comment(
+        " Marker brightness.",
+        defaultValue(Brightness.DEFAULT),
+        allowValues(Brightness.values())
+      )
+      .translation(
+        configGuiKey(PATH, "marker.brightness")
+      )
+      .defineEnum(
+        "marker.brightness",
+        Brightness.DEFAULT
+      );
 
-    public Mode.Name selectedModeName() {
-        return new Mode.Name(selectedModeNameValue.get());
-    }
+    builder.pop();
+  }
 
-    public UpdateResult selectedModeName(Mode.Name name) {
-        return updater.update(selectedModeNameValue, name.translationKey());
-    }
+  // endregion
 
-    // endregion
+  // region Horizontal scan ranges
 
-    // region Check interval
+  public Mode.Name selectedModeName() {
+    return new Mode.Name(selectedModeNameValue.get());
+  }
 
-    private final IntValue checkIntervalValue;
-    private Interval checkIntervalValueCache;
+  public UpdateResult selectedModeName(Mode.Name name) {
+    return updater.update(selectedModeNameValue, name.translationKey());
+  }
 
-    public Interval checkInterval() {
-        var cache = checkIntervalValueCache;
-        if (cache == null || cache.milliSeconds() != checkIntervalValue.get())
-            checkIntervalValueCache = cache = Interval.ofMilliSeconds(checkIntervalValue.get());
-        return cache;
-    }
+  public Interval checkInterval() {
+    var cache = checkIntervalValueCache;
+    if (cache == null || cache.milliSeconds() != checkIntervalValue.get())
+      checkIntervalValueCache = cache = Interval.ofMilliSeconds(checkIntervalValue.get());
+    return cache;
+  }
 
-    // endregion
+  // endregion
 
-    // region Horizontal scan ranges
+  // region Vertical scan ranges
 
-    private final IntValue horizontalRangeValue;
+  public Horizontal horizontalRange() {
+    return Horizontal.of(horizontalRangeValue.get());
+  }
 
-    public Horizontal horizontalRange() {
-        return Horizontal.of(horizontalRangeValue.get());
-    }
+  public UpdateResult horizontalRange(Horizontal newValue) {
+    return updater.update(horizontalRangeValue, newValue.value());
+  }
 
-    public UpdateResult horizontalRange(Horizontal newValue) {
-        return updater.update(horizontalRangeValue, newValue.value());
-    }
+  public Vertical verticalRange() {
+    return Vertical.of(verticalRangeValue.get());
+  }
 
-    // endregion
+  // endregion
 
-    // region Vertical scan ranges
+  // region Brightness
 
-    private final IntValue verticalRangeValue;
+  public UpdateResult verticalRange(Vertical newValue) {
+    return updater.update(verticalRangeValue, newValue.value());
+  }
 
-    public Vertical verticalRange() {
-        return Vertical.of(verticalRangeValue.get());
-    }
+  public Brightness brightness() {
+    return brightnessValue.get();
+  }
 
-    public UpdateResult verticalRange(Vertical newValue) {
-        return updater.update(verticalRangeValue, newValue.value());
-    }
+  public UpdateResult brightness(Brightness newValue) {
+    return updater.update(brightnessValue, newValue);
+  }
 
-    // endregion
-
-    // region Brightness
-
-    private final EnumValue<Brightness> brightnessValue;
-
-    public Brightness brightness() {
-        return brightnessValue.get();
-    }
-
-    public UpdateResult brightness(Brightness newValue) {
-        return updater.update(brightnessValue, newValue);
-    }
-
-    // endregion
+  // endregion
 
 }

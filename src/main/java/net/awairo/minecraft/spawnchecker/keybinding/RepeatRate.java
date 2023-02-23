@@ -23,19 +23,18 @@ import lombok.Value;
 
 @Value
 public class RepeatRate {
-    public static final int MIN = 1;
-    public static final int MAX = 3_000;
-    public static final RepeatRate DEFAULT = new RepeatRate(150);
+  public static final int MIN = 1;
+  public static final int MAX = 3_000;
+  public static final RepeatRate DEFAULT = new RepeatRate(150);
+  private final int milliSeconds;
 
-    public static RepeatRate ofMilliSeconds(int milliSeconds) {
-        return milliSeconds == DEFAULT.milliSeconds ? DEFAULT : new RepeatRate(milliSeconds);
-    }
+  private RepeatRate(int milliSeconds) {
+    if (milliSeconds < MIN || milliSeconds > MAX)
+      throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
+    this.milliSeconds = milliSeconds;
+  }
 
-    private final int milliSeconds;
-
-    private RepeatRate(int milliSeconds) {
-        if (milliSeconds < MIN || milliSeconds > MAX)
-            throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
-        this.milliSeconds = milliSeconds;
-    }
+  public static RepeatRate ofMilliSeconds(int milliSeconds) {
+    return milliSeconds == DEFAULT.milliSeconds ? DEFAULT : new RepeatRate(milliSeconds);
+  }
 }

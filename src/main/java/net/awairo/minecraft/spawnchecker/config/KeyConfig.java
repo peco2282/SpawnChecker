@@ -19,83 +19,79 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
+import lombok.NonNull;
+import net.awairo.minecraft.spawnchecker.keybinding.RepeatDelay;
+import net.awairo.minecraft.spawnchecker.keybinding.RepeatRate;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 
-import net.awairo.minecraft.spawnchecker.keybinding.RepeatDelay;
-import net.awairo.minecraft.spawnchecker.keybinding.RepeatRate;
-
-import lombok.NonNull;
-import lombok.var;
-
-import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
+import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.configGuiKey;
+import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.defaultMinMax;
 
 public final class KeyConfig {
-    private static final String PATH = "key";
+  private static final String PATH = "key";
 
-    private final Updater updater;
+  private final Updater updater;
+  private final IntValue repeatDelayValue;
 
-    KeyConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
-        this.updater = updater;
+  // region [key binding] RepeatDelay
+  private final IntValue repeatRateValue;
+  private RepeatDelay repeatDelayCache;
+  private RepeatRate repeatRateCache;
 
-        builder.comment(" Key binding configurations.");
-        builder.push(PATH);
+  // endregion
 
-        repeatDelayValue = builder
-            .comment(
-                " Key repeat delay. (ms)",
-                defaultMinMax(RepeatDelay.DEFAULT.milliSeconds(), RepeatDelay.MIN, RepeatDelay.MAX)
-            )
-            .translation(
-                configGuiKey(PATH, "repeatDelay")
-            )
-            .defineInRange(
-                "repeatDelay",
-                RepeatDelay.DEFAULT::milliSeconds, RepeatDelay.MIN, RepeatDelay.MAX
-            );
+  // region [key binding] RepeatRate
 
-        repeatRateValue = builder
-            .comment(
-                " Key repeat rate. (ms)",
-                defaultMinMax(RepeatRate.DEFAULT.milliSeconds(), RepeatRate.MIN, RepeatRate.MAX)
-            )
-            .translation(
-                configGuiKey(PATH, "repeatRate")
-            )
-            .defineInRange(
-                "repeatRate",
-                RepeatRate.DEFAULT::milliSeconds, RepeatRate.MIN, RepeatRate.MAX
-            );
+  KeyConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
+    this.updater = updater;
 
-        builder.pop();
-    }
+    builder.comment(" Key binding configurations.");
+    builder.push(PATH);
 
-    // region [key binding] RepeatDelay
+    repeatDelayValue = builder
+      .comment(
+        " Key repeat delay. (ms)",
+        defaultMinMax(RepeatDelay.DEFAULT.milliSeconds(), RepeatDelay.MIN, RepeatDelay.MAX)
+      )
+      .translation(
+        configGuiKey(PATH, "repeatDelay")
+      )
+      .defineInRange(
+        "repeatDelay",
+        RepeatDelay.DEFAULT::milliSeconds, RepeatDelay.MIN, RepeatDelay.MAX
+      );
 
-    private final IntValue repeatDelayValue;
-    private RepeatDelay repeatDelayCache;
+    repeatRateValue = builder
+      .comment(
+        " Key repeat rate. (ms)",
+        defaultMinMax(RepeatRate.DEFAULT.milliSeconds(), RepeatRate.MIN, RepeatRate.MAX)
+      )
+      .translation(
+        configGuiKey(PATH, "repeatRate")
+      )
+      .defineInRange(
+        "repeatRate",
+        RepeatRate.DEFAULT::milliSeconds, RepeatRate.MIN, RepeatRate.MAX
+      );
 
-    public RepeatDelay repeatDelay() {
-        var cache = repeatDelayCache;
-        if (cache == null || cache.milliSeconds() != repeatDelayValue.get())
-            repeatDelayCache = cache = RepeatDelay.ofMilliSeconds(repeatDelayValue.get());
-        return cache;
-    }
+    builder.pop();
+  }
 
-    // endregion
+  public RepeatDelay repeatDelay() {
+    var cache = repeatDelayCache;
+    if (cache == null || cache.milliSeconds() != repeatDelayValue.get())
+      repeatDelayCache = cache = RepeatDelay.ofMilliSeconds(repeatDelayValue.get());
+    return cache;
+  }
 
-    // region [key binding] RepeatRate
+  public RepeatRate repeatRate() {
+    var cache = repeatRateCache;
+    if (cache == null || cache.milliSeconds() != repeatRateValue.get())
+      repeatRateCache = cache = RepeatRate.ofMilliSeconds(repeatRateValue.get());
+    return cache;
+  }
 
-    private final IntValue repeatRateValue;
-    private RepeatRate repeatRateCache;
-
-    public RepeatRate repeatRate() {
-        var cache = repeatRateCache;
-        if (cache == null || cache.milliSeconds() != repeatRateValue.get())
-            repeatRateCache = cache = RepeatRate.ofMilliSeconds(repeatRateValue.get());
-        return cache;
-    }
-
-    // endregion
+  // endregion
 
 }

@@ -23,19 +23,18 @@ import lombok.Value;
 
 @Value
 public class RepeatDelay {
-    public static final int MIN = 1;
-    public static final int MAX = 3_000;
-    public static final RepeatDelay DEFAULT = new RepeatDelay(500);
+  public static final int MIN = 1;
+  public static final int MAX = 3_000;
+  public static final RepeatDelay DEFAULT = new RepeatDelay(500);
+  private final int milliSeconds;
 
-    public static RepeatDelay ofMilliSeconds(int milliSeconds) {
-        return DEFAULT.milliSeconds == milliSeconds ? DEFAULT : new RepeatDelay(milliSeconds);
-    }
+  private RepeatDelay(int milliSeconds) {
+    if (milliSeconds < MIN || milliSeconds > MAX)
+      throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
+    this.milliSeconds = milliSeconds;
+  }
 
-    private final int milliSeconds;
-
-    private RepeatDelay(int milliSeconds) {
-        if (milliSeconds < MIN || milliSeconds > MAX)
-            throw new IllegalArgumentException("Out of range. (" + milliSeconds + ")");
-        this.milliSeconds = milliSeconds;
-    }
+  public static RepeatDelay ofMilliSeconds(int milliSeconds) {
+    return DEFAULT.milliSeconds == milliSeconds ? DEFAULT : new RepeatDelay(milliSeconds);
+  }
 }

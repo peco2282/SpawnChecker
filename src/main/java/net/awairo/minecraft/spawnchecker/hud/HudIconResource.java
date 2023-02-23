@@ -19,31 +19,29 @@
 
 package net.awairo.minecraft.spawnchecker.hud;
 
-import net.minecraft.util.ResourceLocation;
-
-import net.awairo.minecraft.spawnchecker.SpawnChecker;
-
 import lombok.Getter;
+import net.awairo.minecraft.spawnchecker.SpawnChecker;
+import net.minecraft.resources.ResourceLocation;
 
 public enum HudIconResource {
-    SPAWN_CHECKER("spawn_checker.png"),
-    SLIME_CHUNK_CHECKER("slime_chunk_visualizer.png"),
-    SPAWNER_VISUALIZER("spawner_visualizer.png"),
+  SPAWN_CHECKER("spawn_checker.png"),
+  SLIME_CHUNK_CHECKER("slime_chunk_visualizer.png"),
+  SPAWNER_VISUALIZER("spawner_visualizer.png"),
 
-    HORIZONTAL_RANGE("horizontal_range.png"),
-    VERTICAL_RANGE("vertical_range.png"),
+  HORIZONTAL_RANGE("horizontal_range.png"),
+  VERTICAL_RANGE("vertical_range.png"),
 
-    BRIGHTNESS("brightness.png"),
+  BRIGHTNESS("brightness.png"),
 
-    ;
+  ;
 
-    private static final String NAMESPACE = SpawnChecker.MOD_ID;
-    private static final String DIRECTORY_NAME = "textures/hud";
+  private static final String NAMESPACE = SpawnChecker.MOD_ID;
+  private static final String DIRECTORY_NAME = "textures/hud";
 
-    @Getter
-    private final ResourceLocation location;
+  @Getter
+  private final ResourceLocation location;
 
-    HudIconResource(String name) {
-        location = new ResourceLocation(NAMESPACE, DIRECTORY_NAME + "/" + name);
-    }
+  HudIconResource(String name) {
+    location = new ResourceLocation(NAMESPACE, DIRECTORY_NAME + "/" + name);
+  }
 }

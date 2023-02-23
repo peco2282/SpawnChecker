@@ -22,47 +22,54 @@ package net.awairo.minecraft.spawnchecker.hud;
 import lombok.Getter;
 
 public abstract class HudOffset {
-    public static final int MIN_VALUE = -4_096;
-    public static final int MAX_VALUE = 4_096;
-    public static final int DEFAULT_VALUE = 0;
+  public static final int MIN_VALUE = -4_096;
+  public static final int MAX_VALUE = 4_096;
+  public static final int DEFAULT_VALUE = 0;
+  @Getter
+  private final int value;
 
-    public static X xOf(int value) { return new X(value);}
+  private HudOffset(int value) {
+    if (value < MIN_VALUE || value > MAX_VALUE)
+      throw new IllegalArgumentException("Out of range. (" + value + ")");
+    this.value = value;
+  }
 
-    public static Y yOf(int value) { return new Y(value);}
+  public static X xOf(int value) {
+    return new X(value);
+  }
 
-    @Getter
-    private final int value;
+  public static Y yOf(int value) {
+    return new Y(value);
+  }
 
-    private HudOffset(int value) {
-        if (value < MIN_VALUE || value > MAX_VALUE)
-            throw new IllegalArgumentException("Out of range. (" + value + ")");
-        this.value = value;
+  @Override
+  public int hashCode() {
+    return value;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    return obj == this || getClass().isInstance(obj) && ((HudOffset) obj).value == value;
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "(" + value + ")";
+  }
+
+  public static final class X extends HudOffset {
+    public static final X DEFAULT = new X(DEFAULT_VALUE);
+
+    private X(int value) {
+      super(value);
     }
+  }
 
-    @Override
-    public int hashCode() {
-        return value;
+  public static final class Y extends HudOffset {
+    public static final Y DEFAULT = new Y(DEFAULT_VALUE);
+
+    private Y(int value) {
+      super(value);
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj == this || getClass().isInstance(obj) && ((HudOffset) obj).value == value;
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(" + value + ")";
-    }
-
-    public static final class X extends HudOffset {
-        public static final X DEFAULT = new X(DEFAULT_VALUE);
-
-        private X(int value) { super(value); }
-    }
-
-    public static final class Y extends HudOffset {
-        public static final Y DEFAULT = new Y(DEFAULT_VALUE);
-
-        private Y(int value) { super(value); }
-    }
+  }
 }

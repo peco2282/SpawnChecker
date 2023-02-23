@@ -19,100 +19,95 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
+import lombok.NonNull;
+import net.awairo.minecraft.spawnchecker.api.HudData.ShowDuration;
+import net.awairo.minecraft.spawnchecker.hud.HudOffset;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.common.ForgeConfigSpec.LongValue;
 
-import net.awairo.minecraft.spawnchecker.api.HudData.ShowDuration;
-import net.awairo.minecraft.spawnchecker.hud.HudOffset;
-
-import lombok.NonNull;
-import lombok.var;
-
-import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
+import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.configGuiKey;
+import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.defaultMinMax;
 
 public final class HudConfig {
-    private static final String PATH = "hud";
+  private static final String PATH = "hud";
 
-    private final Updater updater;
+  private final Updater updater;
+  private final LongValue showDurationValue;
 
-    HudConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
-        this.updater = updater;
+  // region [hud] HudShowDuration
+  private final IntValue xOffsetValue;
+  private final IntValue yOffsetValue;
+  private ShowDuration showDurationCache = null;
 
-        builder.comment(" HUD configurations");
-        builder.push(PATH);
+  // endregion
+  private HudOffset.X xOffsetCache;
+  private HudOffset.Y yOffsetCache;
 
-        showDurationValue = builder
-            .comment(
-                " Hud show duration. (ms)",
-                defaultMinMax(ShowDuration.DEFAULT.milliSeconds(), ShowDuration.MIN_VALUE, ShowDuration.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "showDuration")
-            )
-            .defineInRange(
-                "showDuration",
-                ShowDuration.DEFAULT::milliSeconds, ShowDuration.MIN_VALUE, ShowDuration.MAX_VALUE
-            );
+  HudConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
+    this.updater = updater;
 
-        xOffsetValue = builder
-            .comment(
-                " HUD position x topOffset.",
-                defaultMinMax(HudOffset.DEFAULT_VALUE, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "xOffset")
-            )
-            .defineInRange(
-                "xOffset",
-                HudOffset.X.DEFAULT::value, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE
-            );
+    builder.comment(" HUD configurations");
+    builder.push(PATH);
 
-        yOffsetValue = builder
-            .comment(
-                " HUD position y topOffset.",
-                defaultMinMax(HudOffset.Y.DEFAULT.value(), HudOffset.MIN_VALUE, HudOffset.MAX_VALUE)
-            )
-            .translation(
-                configGuiKey(PATH, "topOffset")
-            )
-            .defineInRange(
-                "topOffset",
-                HudOffset.Y.DEFAULT::value, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE
-            );
-    }
+    showDurationValue = builder
+      .comment(
+        " Hud show duration. (ms)",
+        defaultMinMax(ShowDuration.DEFAULT.milliSeconds(), ShowDuration.MIN_VALUE, ShowDuration.MAX_VALUE)
+      )
+      .translation(
+        configGuiKey(PATH, "showDuration")
+      )
+      .defineInRange(
+        "showDuration",
+        ShowDuration.DEFAULT::milliSeconds, ShowDuration.MIN_VALUE, ShowDuration.MAX_VALUE
+      );
 
-    // region [hud] HudShowDuration
+    xOffsetValue = builder
+      .comment(
+        " HUD position x topOffset.",
+        defaultMinMax(HudOffset.DEFAULT_VALUE, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE)
+      )
+      .translation(
+        configGuiKey(PATH, "xOffset")
+      )
+      .defineInRange(
+        "xOffset",
+        HudOffset.X.DEFAULT::value, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE
+      );
 
-    private final LongValue showDurationValue;
-    private ShowDuration showDurationCache = null;
+    yOffsetValue = builder
+      .comment(
+        " HUD position y topOffset.",
+        defaultMinMax(HudOffset.Y.DEFAULT.value(), HudOffset.MIN_VALUE, HudOffset.MAX_VALUE)
+      )
+      .translation(
+        configGuiKey(PATH, "topOffset")
+      )
+      .defineInRange(
+        "topOffset",
+        HudOffset.Y.DEFAULT::value, HudOffset.MIN_VALUE, HudOffset.MAX_VALUE
+      );
+  }
 
-    public ShowDuration showDuration() {
-        var cache = showDurationCache;
-        if (cache == null || cache.milliSeconds() != showDurationValue.get())
-            cache = showDurationCache = new ShowDuration(showDurationValue.get());
-        return cache;
-    }
+  public ShowDuration showDuration() {
+    var cache = showDurationCache;
+    if (cache == null || cache.milliSeconds() != showDurationValue.get())
+      cache = showDurationCache = new ShowDuration(showDurationValue.get());
+    return cache;
+  }
 
-    // endregion
+  public HudOffset.X xOffset() {
+    var cache = xOffsetCache;
+    if (cache == null || cache.value() != xOffsetValue.get())
+      cache = xOffsetCache = HudOffset.xOf(xOffsetValue.get());
+    return cache;
+  }
 
-    private final IntValue xOffsetValue;
-    private HudOffset.X xOffsetCache;
-
-    public HudOffset.X xOffset() {
-        var cache = xOffsetCache;
-        if (cache == null || cache.value() != xOffsetValue.get())
-            cache = xOffsetCache = HudOffset.xOf(xOffsetValue.get());
-        return cache;
-    }
-
-    private final IntValue yOffsetValue;
-    private HudOffset.Y yOffsetCache;
-
-    public HudOffset.Y yOffset() {
-        var cache = yOffsetCache;
-        if (cache == null || cache.value() != yOffsetValue.get())
-            cache = yOffsetCache = HudOffset.yOf(yOffsetValue.get());
-        return cache;
-    }
+  public HudOffset.Y yOffset() {
+    var cache = yOffsetCache;
+    if (cache == null || cache.value() != yOffsetValue.get())
+      cache = yOffsetCache = HudOffset.yOf(yOffsetValue.get());
+    return cache;
+  }
 }

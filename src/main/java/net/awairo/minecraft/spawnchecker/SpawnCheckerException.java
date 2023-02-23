@@ -19,46 +19,45 @@
 
 package net.awairo.minecraft.spawnchecker;
 
-import java.util.Objects;
-import java.util.function.Supplier;
-
+import lombok.NonNull;
 import net.awairo.minecraft.spawnchecker.util.LazyCachedSupplier;
 
-import lombok.NonNull;
+import java.util.Objects;
+import java.util.function.Supplier;
 
 @SuppressWarnings({"WeakerAccess", "unused"})
 public final class SpawnCheckerException extends RuntimeException {
 
-    private final LazyCachedSupplier<String> message;
+  private final LazyCachedSupplier<String> message;
 
-    public SpawnCheckerException(@NonNull String message) {
-        this(LazyCachedSupplier.withCached(message));
-    }
+  public SpawnCheckerException(@NonNull String message) {
+    this(LazyCachedSupplier.withCached(message));
+  }
 
-    public SpawnCheckerException(@NonNull String format, @NonNull Object... args) {
-        this(() -> String.format(format, (Object[]) args));
-    }
+  public SpawnCheckerException(@NonNull String format, @NonNull Object... args) {
+    this(() -> String.format(format, args));
+  }
 
-    public SpawnCheckerException(Throwable cause, @NonNull String format, @NonNull Object... args) {
-        this(() -> String.format(format, (Object[]) args), cause);
-    }
+  public SpawnCheckerException(Throwable cause, @NonNull String format, @NonNull Object... args) {
+    this(() -> String.format(format, args), cause);
+  }
 
-    public SpawnCheckerException(@NonNull Supplier<String> message) {
-        this(message, null);
-    }
+  public SpawnCheckerException(@NonNull Supplier<String> message) {
+    this(message, null);
+  }
 
-    public SpawnCheckerException(@NonNull Supplier<String> message, Throwable cause) {
-        this(LazyCachedSupplier.of(message), cause);
-    }
+  public SpawnCheckerException(@NonNull Supplier<String> message, Throwable cause) {
+    this(LazyCachedSupplier.of(message), cause);
+  }
 
-    private SpawnCheckerException(LazyCachedSupplier<String> message, Throwable cause) {
-        this.message = message;
-        if (Objects.nonNull(cause))
-            initCause(cause);
-    }
+  private SpawnCheckerException(LazyCachedSupplier<String> message, Throwable cause) {
+    this.message = message;
+    if (Objects.nonNull(cause))
+      initCause(cause);
+  }
 
-    @Override
-    public String getMessage() {
-        return message.get();
-    }
+  @Override
+  public String getMessage() {
+    return message.get();
+  }
 }

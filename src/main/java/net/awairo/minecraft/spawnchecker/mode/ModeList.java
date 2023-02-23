@@ -19,154 +19,148 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
+import lombok.*;
+import lombok.extern.log4j.Log4j2;
+import net.awairo.minecraft.spawnchecker.api.Mode;
+import net.awairo.minecraft.spawnchecker.api.PlayerPos;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import net.awairo.minecraft.spawnchecker.api.Mode;
-import net.awairo.minecraft.spawnchecker.api.PlayerPos;
-
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import lombok.val;
-import lombok.var;
-
 @Log4j2
 @NoArgsConstructor(access = AccessLevel.PACKAGE)
 final class ModeList {
 
-    private final List<Mode.Selectable> selectableModes = new ArrayList<>();
-    private final List<Mode.Conditional> conditionalModes = new ArrayList<>();
+  private final List<Mode.Selectable> selectableModes = new ArrayList<>();
+  private final List<Mode.Conditional> conditionalModes = new ArrayList<>();
 
-    private int index = 0;
-    private int scheduledIndex = 0;
-    private Mode previous = null;
+  private int index = 0;
+  private int scheduledIndex = 0;
+  private Mode previous = null;
 
-    @Getter
-    private Mode current;
+  @Getter
+  private Mode current;
 
-    void add(Mode mode) {
+  void add(Mode mode) {
 
-        if (mode.isSelectable()) {
-            selectableModes.add(mode.asSelectable());
-            Collections.sort(selectableModes);
-            return;
-        }
-
-        if (mode.isConditional()) {
-            conditionalModes.add(mode.asConditional());
-            Collections.sort(conditionalModes);
-            return;
-        }
-
-        throw new IllegalArgumentException("unreachable code.");
+    if (mode.isSelectable()) {
+      selectableModes.add(mode.asSelectable());
+      Collections.sort(selectableModes);
+      return;
     }
 
-    void scheduleChangeNextMode() {
-        scheduledIndex++;
+    if (mode.isConditional()) {
+      conditionalModes.add(mode.asConditional());
+      Collections.sort(conditionalModes);
+      return;
     }
 
-    void scheduleChangePrevMode() {
+    throw new IllegalArgumentException("unreachable code.");
+  }
+
+  void scheduleChangeNextMode() {
+    scheduledIndex++;
+  }
+
+  void scheduleChangePrevMode() {
+    scheduledIndex--;
+  }
+
+  Result updateList(PlayerPos playerPos, Mode.State state) {
+    if (scheduledIndex != 0) {
+      log.debug("index={}, scheduledIndex={}", index, scheduledIndex);
+      var nextIndex = index;
+      if (current.isConditional())
+        popPreviousMode(state);
+
+      // 進む方向に予定されてる回数だけ次に選択するindexを増加させる
+      while (scheduledIndex > 0) {
         scheduledIndex--;
+        if (nextIndex + 1 < selectableModes.size())
+          nextIndex++;
+      }
+      // 戻る方向に予定されてる回数だけ次に選択するindexを減少させる
+      while (scheduledIndex < 0) {
+        scheduledIndex++;
+        if (nextIndex > 0)
+          nextIndex--;
+      }
+      // indexが変わる操作だった変更して終了
+      if (index != nextIndex) {
+        index = nextIndex;
+        if (current.isActive())
+          current.deactivate(state);
+        current = currentSelectableMode();
+        return Result.CHANGED;
+      }
     }
 
-    Result updateList(PlayerPos playerPos, Mode.State state) {
-        if (scheduledIndex != 0) {
-            log.debug("index={}, scheduledIndex={}", index, scheduledIndex);
-            var nextIndex = index;
-            if (current.isConditional())
-                popPreviousMode(state);
+    if (current.isSelectable()) {
+      val foundMode = findModeThatCanBeActivated(playerPos, state);
+      if (foundMode.isPresent()) {
+        pushConditionalMode(foundMode.get(), state);
+        return Result.CHANGED;
+      }
+      return Result.NOT_CHANGED;
+    }
 
-            // 進む方向に予定されてる回数だけ次に選択するindexを増加させる
-            while (scheduledIndex > 0) {
-                scheduledIndex--;
-                if (nextIndex + 1 < selectableModes.size())
-                    nextIndex++;
-            }
-            // 戻る方向に予定されてる回数だけ次に選択するindexを減少させる
-            while (scheduledIndex < 0) {
-                scheduledIndex++;
-                if (nextIndex > 0)
-                    nextIndex--;
-            }
-            // indexが変わる操作だった変更して終了
-            if (index != nextIndex) {
-                index = nextIndex;
-                if (current.isActive())
-                    current.deactivate(state);
-                current = currentSelectableMode();
-                return Result.CHANGED;
-            }
-        }
-
-        if (current.isSelectable()) {
-            val foundMode = findModeThatCanBeActivated(playerPos, state);
-            if (foundMode.isPresent()) {
-                pushConditionalMode(foundMode.get(), state);
-                return Result.CHANGED;
-            }
-            return Result.NOT_CHANGED;
-        }
-
-        if (current.isConditional()) {
-            if (((Mode.Conditional) current).canContinue(playerPos, state)) {
-                return Result.NOT_CHANGED;
-            }
-            popPreviousMode(state);
-            return Result.CHANGED;
-        }
-
+    if (current.isConditional()) {
+      if (((Mode.Conditional) current).canContinue(playerPos, state)) {
         return Result.NOT_CHANGED;
+      }
+      popPreviousMode(state);
+      return Result.CHANGED;
     }
 
-    void selectBy(Mode.Name name) {
-        // noinspection OptionalGetWithoutIsPresent
-        val found = selectableModes.stream()
-            .filter(mode -> mode.name().equals(name))
-            .findFirst()
-            .orElseGet(() -> selectableModes.stream()
-                .filter(mode -> mode.name().equals(SpawnCheckMode.NAME))
-                .findFirst()
-                .get() // プリセットモードなのでかならず見つかる想定
-            );
+    return Result.NOT_CHANGED;
+  }
 
-        current = found;
-        index = selectableModes.indexOf(found);
-    }
+  void selectBy(Mode.Name name) {
+    // noinspection OptionalGetWithoutIsPresent
+    val found = selectableModes.stream()
+      .filter(mode -> mode.name().equals(name))
+      .findFirst()
+      .orElseGet(() -> selectableModes.stream()
+        .filter(mode -> mode.name().equals(SpawnCheckMode.NAME))
+        .findFirst()
+        .get() // プリセットモードなのでかならず見つかる想定
+      );
 
-    private void pushConditionalMode(Mode.Conditional mode, Mode.State state) {
-        if (current.isActive())
-            current.deactivate(state);
-        previous = current;
-        current = mode;
-    }
+    current = found;
+    index = selectableModes.indexOf(found);
+  }
 
-    private void popPreviousMode(Mode.State state) {
-        if (current.isActive())
-            current.deactivate(state);
-        current = previous;
-        previous = null;
-    }
+  private void pushConditionalMode(Mode.Conditional mode, Mode.State state) {
+    if (current.isActive())
+      current.deactivate(state);
+    previous = current;
+    current = mode;
+  }
 
-    private Mode.Selectable currentSelectableMode() {
-        return selectableModes.get(index);
-    }
+  private void popPreviousMode(Mode.State state) {
+    if (current.isActive())
+      current.deactivate(state);
+    current = previous;
+    previous = null;
+  }
 
-    private Optional<Mode.Conditional> findModeThatCanBeActivated(PlayerPos playerPos, Mode.State state) {
-        return conditionalModes.stream()
-            .filter(mode -> mode.canActivate(playerPos, state))
-            .findFirst();
-    }
+  private Mode.Selectable currentSelectableMode() {
+    return selectableModes.get(index);
+  }
 
-    @Getter
-    @RequiredArgsConstructor
-    enum Result {
-        CHANGED(true),
-        NOT_CHANGED(false);
-        private final boolean changed;
-    }
+  private Optional<Mode.Conditional> findModeThatCanBeActivated(PlayerPos playerPos, Mode.State state) {
+    return conditionalModes.stream()
+      .filter(mode -> mode.canActivate(playerPos, state))
+      .findFirst();
+  }
+
+  @Getter
+  @RequiredArgsConstructor
+  enum Result {
+    CHANGED(true),
+    NOT_CHANGED(false);
+    private final boolean changed;
+  }
 }

@@ -19,94 +19,92 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
-
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.renderer.entity.EntityRendererManager;
-import net.minecraft.client.renderer.texture.TextureManager;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
-
-import net.awairo.minecraft.spawnchecker.api.Color;
-import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
-
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Quaternion;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Value;
+import net.awairo.minecraft.spawnchecker.api.Color;
+import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.texture.TextureManager;
+import net.minecraft.resources.ResourceLocation;
 
 @Value
 final class MyMarkerRendererImpl implements MarkerRenderer {
-    private final WorldRenderer worldRenderer;
-    private final float partialTicks;
-    @Getter(AccessLevel.PRIVATE)
-    private final MatrixStack matrixStack;
-    private final TextureManager textureManager;
-    private final EntityRendererManager renderManager;
+  private final LevelRenderer worldRenderer;
+  private final float partialTicks;
+  @Getter(AccessLevel.PRIVATE)
+  private final PoseStack matrixStack;
+  private final TextureManager textureManager;
+  private final EntityRenderDispatcher renderManager;
 
-    @Override
-    public void bindTexture(ResourceLocation texture) {
-        textureManager.bindTexture(texture);
-    }
+  @Override
+  public void bindTexture(ResourceLocation texture) {
+    textureManager.getTexture(texture);
+  }
 
-    @Override
-    public void addVertex(double x, double y, double z) {
-        buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
-            .endVertex();
-    }
+  @Override
+  public void addVertex(double x, double y, double z) {
+    buffer()
+      .vertex(
+        matrixStack.last().pose(), (float) x, (float) y, (float) z)
+      .endVertex();
+  }
 
-    @Override
-    public void addVertex(double x, double y, double z, float u, float v) {
-        buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
-            .tex(u, v)
-            .endVertex();
-    }
+  @Override
+  public void addVertex(double x, double y, double z, float u, float v) {
+    buffer()
+      .vertex(matrixStack.last().pose(), (float) x, (float) y, (float) z)
+      .uv(u, v)
+      .endVertex();
+  }
 
-    @Override
-    public void addVertex(double x, double y, double z, Color color) {
-        buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
-            .color(color.red(), color.green(), color.blue(), color.alpha())
-            .endVertex();
-    }
+  @Override
+  public void addVertex(double x, double y, double z, Color color) {
+    buffer()
+      .vertex(matrixStack.last().pose(), (float) x, (float) y, (float) z)
+      .color(color.red(), color.green(), color.blue(), color.alpha())
+      .endVertex();
+  }
 
-    @Override
-    public void addVertex(double x, double y, double z, float u, float v, Color color) {
-        buffer()
-            .pos(matrixStack.getLast().getMatrix(), (float) x, (float) y, (float) z)
-            .tex(u, v)
-            .color(color.red(), color.green(), color.blue(), color.alpha())
-            .endVertex();
-    }
+  @Override
+  public void addVertex(double x, double y, double z, float u, float v, Color color) {
+    buffer()
+      .vertex(matrixStack.last().pose(), (float) x, (float) y, (float) z)
+      .uv(u, v)
+      .color(color.red(), color.green(), color.blue(), color.alpha())
+      .endVertex();
+  }
 
-    @Override
-    public void push() {
-        matrixStack.push();
-    }
+  @Override
+  public void push() {
+    matrixStack.pushPose();
+  }
 
-    @Override
-    public void pop() {
-        matrixStack.pop();
-    }
+  @Override
+  public void pop() {
+    matrixStack.popPose();
+  }
 
-    @Override
-    public void translate(double x, double y, double z) {
-        matrixStack.translate(x, y, z);
-    }
+  @Override
+  public void translate(double x, double y, double z) {
+    matrixStack.translate(x, y, z);
+  }
 
-    @Override
-    public void scale(float m00, float m11, float m22) {
-        matrixStack.scale(m00, m11, m22);
-    }
+  @Override
+  public void scale(float m00, float m11, float m22) {
+    matrixStack.scale(m00, m11, m22);
+  }
 
-    @Override
-    public void rotate(Quaternion quaternion) {
-        matrixStack.rotate(quaternion);
-    }
+  @Override
+  public void rotate(Quaternion quaternion) {
+    matrixStack.mulPose(quaternion);
+  }
 
-    @Override
-    public void clear() {
-        matrixStack.clear();
-    }
+  @Override
+  public void clear() {
+    matrixStack.clear();
+  }
 }

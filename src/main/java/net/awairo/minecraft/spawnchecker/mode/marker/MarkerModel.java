@@ -22,5 +22,5 @@ package net.awairo.minecraft.spawnchecker.mode.marker;
 import net.awairo.minecraft.spawnchecker.api.MarkerRenderer;
 
 public interface MarkerModel {
-    void draw(MarkerRenderer renderer);
+  void draw(MarkerRenderer renderer);
 }

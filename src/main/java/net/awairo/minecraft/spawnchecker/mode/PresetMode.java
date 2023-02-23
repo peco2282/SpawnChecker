@@ -19,75 +19,74 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import net.minecraft.util.ResourceLocation;
-
+import lombok.NonNull;
 import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
-
-import lombok.NonNull;
+import net.minecraft.resources.ResourceLocation;
 
 abstract class PresetMode<T extends PresetMode<T>> implements Mode {
-    private final Name name;
-    private final HudIconResource icon;
-    private final Priority priority;
+  private final Name name;
+  private final HudIconResource icon;
+  private final Priority priority;
 
-    private boolean active = false;
+  private boolean active = false;
 
-    PresetMode(@NonNull Name name, @NonNull HudIconResource icon, @NonNull Priority priority) {
-        this.name = name;
-        this.icon = icon;
-        this.priority = priority;
-    }
+  PresetMode(@NonNull Name name, @NonNull HudIconResource icon, @NonNull Priority priority) {
+    this.name = name;
+    this.icon = icon;
+    this.priority = priority;
+  }
 
-    protected abstract void setUp();
-    protected abstract void tearDown();
+  protected abstract void setUp();
 
-    @Override
-    public final Name name() {
-        return name;
-    }
+  protected abstract void tearDown();
 
-    @Override
-    public ResourceLocation icon() {
-        return icon.location();
-    }
+  @Override
+  public final Name name() {
+    return name;
+  }
 
-    @Override
-    public final Priority priority() {
-        return priority;
-    }
+  @Override
+  public ResourceLocation icon() {
+    return icon.location();
+  }
 
-    @Override
-    public final boolean isActive() {
-        return active;
-    }
+  @Override
+  public final Priority priority() {
+    return priority;
+  }
 
-    @Override
-    public final void activate(State state) {
-        active = true;
-        Mode.super.activate(state);
-        setUp();
-    }
+  @Override
+  public final boolean isActive() {
+    return active;
+  }
 
-    @Override
-    public final void deactivate(State state) {
-        tearDown();
-        Mode.super.deactivate(state);
-        active = false;
-    }
+  @Override
+  public final void activate(State state) {
+    active = true;
+    Mode.super.activate(state);
+    setUp();
+  }
 
-    @Override
-    public final boolean isInactive() {
-        return Mode.super.isInactive();
-    }
+  @Override
+  public final void deactivate(State state) {
+    tearDown();
+    Mode.super.deactivate(state);
+    active = false;
+  }
 
-    @Override
-    public final boolean isSelectable() {
-        return Mode.super.isSelectable();
-    }
+  @Override
+  public final boolean isInactive() {
+    return Mode.super.isInactive();
+  }
 
-    @Override
-    public final boolean isConditional() {
-        return Mode.super.isConditional();
-    }
+  @Override
+  public final boolean isSelectable() {
+    return Mode.super.isSelectable();
+  }
+
+  @Override
+  public final boolean isConditional() {
+    return Mode.super.isConditional();
+  }
 }

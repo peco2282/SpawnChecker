@@ -26,8 +26,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum UpdateResult {
-    CHANGED(true),
-    NO_CHANGED(false);
+  CHANGED(true),
+  NO_CHANGED(false);
 
-    private final boolean changed;
+  private final boolean changed;
 }

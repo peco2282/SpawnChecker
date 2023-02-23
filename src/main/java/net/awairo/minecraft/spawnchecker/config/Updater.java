@@ -23,5 +23,5 @@ import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
 @FunctionalInterface
 public interface Updater {
-    <T> UpdateResult update(ConfigValue<? super T> value, T newValue);
+  <T> UpdateResult update(ConfigValue<? super T> value, T newValue);
 }

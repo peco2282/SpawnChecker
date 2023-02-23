@@ -19,136 +19,165 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
+import lombok.NonNull;
+import lombok.Value;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.BaseComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+
+import javax.annotation.Nonnull;
 import java.util.Comparator;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-
-import lombok.NonNull;
-import lombok.Value;
 
 public interface Mode {
-    Name name();
-    ResourceLocation icon();
-    default Priority priority() { return Priority.DEFAULT; }
+  Name name();
 
-    boolean isActive();
-    default boolean isInactive() { return !isActive(); }
+  ResourceLocation icon();
 
-    default void proceedNextOption(State modeState) { }
-    default void proceedPrevOption(State modeState) { }
+  default Priority priority() {
+    return Priority.DEFAULT;
+  }
 
-    default void activate(State modeState) {
-        modeState.hudDataRegistry().accept(new HudData.ModeActivated(this, modeState.hudShowDuration()));
+  boolean isActive();
+
+  default boolean isInactive() {
+    return !isActive();
+  }
+
+  default void proceedNextOption(State modeState) {
+  }
+
+  default void proceedPrevOption(State modeState) {
+  }
+
+  default void activate(State modeState) {
+    modeState.hudDataRegistry().accept(new HudData.ModeActivated(this, modeState.hudShowDuration()));
+  }
+
+  default void deactivate(State modeState) {
+  }
+
+  Stream<Marker> update(State modeState, PlayerPos playerPos);
+
+  default boolean isConditional() {
+    return this instanceof Conditional;
+  }
+
+  default boolean isSelectable() {
+    return this instanceof Selectable;
+  }
+
+  default Conditional asConditional() {
+    return (Conditional) this;
+  }
+
+  default Selectable asSelectable() {
+    return (Selectable) this;
+  }
+
+  interface Conditional extends Mode, Comparable<Conditional> {
+    Comparator<Conditional> COMPARATOR = Comparator
+      .comparing(Conditional::priority)
+      .thenComparing(Conditional::name)
+      .thenComparingInt(Object::hashCode);
+
+    boolean canActivate(PlayerPos playerPos, Mode.State state);
+
+    boolean canContinue(PlayerPos playerPos, Mode.State state);
+
+    @Override
+    default int compareTo(@Nonnull Conditional o) {
+      return COMPARATOR.compare(this, o);
     }
-    default void deactivate(State modeState) { }
+  }
 
-    Stream<Marker> update(State modeState, PlayerPos playerPos);
+  interface Selectable extends Mode, Comparable<Selectable> {
 
-    default boolean isConditional() { return this instanceof Conditional; }
-    default boolean isSelectable() { return this instanceof Selectable; }
-    default Conditional asConditional() { return (Conditional) this; }
-    default Selectable asSelectable() { return (Selectable) this; }
+    Comparator<Selectable> COMPARATOR = Comparator
+      .comparing(Selectable::priority)
+      .thenComparing(Selectable::name)
+      .thenComparingInt(Object::hashCode);
 
-    interface Conditional extends Mode, Comparable<Conditional> {
-        boolean canActivate(PlayerPos playerPos, Mode.State state);
-        boolean canContinue(PlayerPos playerPos, Mode.State state);
+    @Override
+    default int compareTo(@Nonnull Selectable o) {
+      return COMPARATOR.compare(this, o);
+    }
+  }
 
-        @Override
-        default int compareTo(@Nonnull Conditional o) {
-            return COMPARATOR.compare(this, o);
-        }
+  interface State {
+    ClientLevel worldClient();
 
-        Comparator<Conditional> COMPARATOR = Comparator
-            .comparing(Conditional::priority)
-            .thenComparing(Conditional::name)
-            .thenComparingInt(Object::hashCode);
+    int tickCount();
+
+    ScanRange.Horizontal horizontalRange();
+
+    ScanRange.Vertical verticalRange();
+
+    Brightness brightness();
+
+    HudData.ShowDuration hudShowDuration();
+
+    Consumer<HudData> hudDataRegistry();
+  }
+
+  final class Name implements Comparable<Name> {
+
+    private final TranslatableComponent textComponent;
+
+    public Name(@NonNull String translationKey) {
+      this.textComponent = new TranslatableComponent(translationKey);
     }
 
-    interface Selectable extends Mode, Comparable<Selectable> {
-
-        @Override
-        default int compareTo(@Nonnull Selectable o) {
-            return COMPARATOR.compare(this, o);
-        }
-
-        Comparator<Selectable> COMPARATOR = Comparator
-            .comparing(Selectable::priority)
-            .thenComparing(Selectable::name)
-            .thenComparingInt(Object::hashCode);
+    public BaseComponent textComponent() {
+      return textComponent;
     }
 
-    interface State {
-        ClientWorld worldClient();
-        int tickCount();
-        ScanRange.Horizontal horizontalRange();
-        ScanRange.Vertical verticalRange();
-        Brightness brightness();
-        HudData.ShowDuration hudShowDuration();
-        Consumer<HudData> hudDataRegistry();
+    public String translationKey() {
+      return textComponent.getKey();
     }
 
-    final class Name implements Comparable<Name> {
-
-        private final TranslationTextComponent textComponent;
-
-        public ITextComponent textComponent() {
-            return textComponent;
-        }
-
-        public String translationKey() {
-            return textComponent.getKey();
-        }
-
-        public Name(@NonNull String translationKey) {
-            this.textComponent = new TranslationTextComponent(translationKey);
-        }
-
-        @Override
-        public int compareTo(@NonNull Name o) {
-            return textComponent.getKey().compareTo(o.textComponent.getKey());
-        }
-
-        @Override
-        public int hashCode() {
-            return textComponent.getKey().hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            return obj == this ||
-                obj instanceof Name && ((Name) obj).textComponent.getKey().equals(textComponent.getKey());
-        }
-
-        @Override
-        public String toString() {
-            return "Mode.Name(translationKey=" + textComponent.getKey() + ")";
-        }
+    @Override
+    public int compareTo(@NonNull Name o) {
+      return textComponent.getKey().compareTo(o.textComponent.getKey());
     }
 
-    @Value
-    final class Priority implements Comparable<Priority> {
-        public static final int MIN = 0;
-        public static final Priority DEFAULT = new Priority(0);
-
-        private final int value;
-
-        public Priority(int value) {
-            if (value < MIN)
-                throw new IllegalArgumentException("priority must be greater than or equal zero. (" + value + ")");
-            this.value = value;
-        }
-
-        @Override
-        public int compareTo(@NonNull Priority o) {
-            // 数値の降順
-            return Integer.compare(o.value, value);
-        }
+    @Override
+    public int hashCode() {
+      return textComponent.getKey().hashCode();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+      return obj == this ||
+        obj instanceof Name && ((Name) obj).textComponent.getKey().equals(textComponent.getKey());
+    }
+
+    @Override
+    public String toString() {
+      return "Mode.Name(translationKey=" + textComponent.getKey() + ")";
+    }
+  }
+
+  @Value
+  final class Priority implements Comparable<Priority> {
+    public static final int MIN = 0;
+    public static final Priority DEFAULT = new Priority(0);
+
+    private final int value;
+
+    public Priority(int value) {
+      if (value < MIN)
+        throw new IllegalArgumentException("priority must be greater than or equal zero. (" + value + ")");
+      this.value = value;
+    }
+
+    @Override
+    public int compareTo(@NonNull Priority o) {
+      // 数値の降順
+      return Integer.compare(o.value, value);
+    }
+  }
 }
 

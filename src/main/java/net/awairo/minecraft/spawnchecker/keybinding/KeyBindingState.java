@@ -19,194 +19,192 @@
 
 package net.awairo.minecraft.spawnchecker.keybinding;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import net.minecraftforge.client.settings.KeyModifier;
-import org.lwjgl.glfw.GLFW;
-
-import net.minecraft.client.settings.KeyBinding;
-
-import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
-import net.awairo.minecraft.spawnchecker.mode.ModeState;
-
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
+import net.awairo.minecraft.spawnchecker.mode.ModeState;
+import net.minecraft.client.KeyMapping;
+import net.minecraftforge.client.settings.KeyModifier;
+import org.lwjgl.glfw.GLFW;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
 @Getter
 @Log4j2
 public final class KeyBindingState {
 
-    @Getter(AccessLevel.NONE)
-    private final Collection<SpawnCheckerKeyBinding> bindings;
-    @Getter(AccessLevel.NONE)
-    private final ModeState modeState;
-    @Getter(AccessLevel.NONE)
-    private final SpawnCheckerConfig config;
+  @Getter(AccessLevel.NONE)
+  private final Collection<SpawnCheckerKeyBinding> bindings;
+  @Getter(AccessLevel.NONE)
+  private final ModeState modeState;
+  @Getter(AccessLevel.NONE)
+  private final SpawnCheckerConfig config;
 
-    private final SpawnCheckerKeyBinding prevMode;
-    private final SpawnCheckerKeyBinding nextMode;
+  private final SpawnCheckerKeyBinding prevMode;
+  private final SpawnCheckerKeyBinding nextMode;
 
-    private final SpawnCheckerKeyBinding prevModeOption;
-    private final SpawnCheckerKeyBinding nextModeOption;
+  private final SpawnCheckerKeyBinding prevModeOption;
+  private final SpawnCheckerKeyBinding nextModeOption;
 
-    private final SpawnCheckerKeyBinding horizontalRangePlus;
-    private final SpawnCheckerKeyBinding horizontalRangeMinus;
+  private final SpawnCheckerKeyBinding horizontalRangePlus;
+  private final SpawnCheckerKeyBinding horizontalRangeMinus;
 
-    private final SpawnCheckerKeyBinding verticalRangePlus;
-    private final SpawnCheckerKeyBinding verticalRangeMinus;
+  private final SpawnCheckerKeyBinding verticalRangePlus;
+  private final SpawnCheckerKeyBinding verticalRangeMinus;
 
-    private final SpawnCheckerKeyBinding brightnessPlus;
-    private final SpawnCheckerKeyBinding brightnessMinus;
+  private final SpawnCheckerKeyBinding brightnessPlus;
+  private final SpawnCheckerKeyBinding brightnessMinus;
 
-    public KeyBindingState(@NonNull ModeState modeState, @NonNull SpawnCheckerConfig config) {
-        this.modeState = modeState;
-        this.config = config;
+  public KeyBindingState(@NonNull ModeState modeState, @NonNull SpawnCheckerConfig config) {
+    this.modeState = modeState;
+    this.config = config;
 
-        val bindings = new LinkedList<SpawnCheckerKeyBinding>();
+    val bindings = new LinkedList<SpawnCheckerKeyBinding>();
 
-        // FIXME: キーバインド処理の実装とリストへの登録
+    // FIXME: キーバインド処理の実装とリストへの登録
 
-        prevMode = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("prevMode")
-            .keyModifier(KeyModifier.CONTROL)
-            .keyCode(GLFW.GLFW_KEY_UP)
-            .ordinal(0)
-            .build();
-        //        bindings.add(prevMode);
+    prevMode = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("prevMode")
+      .keyModifier(KeyModifier.CONTROL)
+      .keyCode(GLFW.GLFW_KEY_UP)
+      .ordinal(0)
+      .build();
+    //        bindings.add(prevMode);
 
-        nextMode = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("nextMode")
-            .keyModifier(KeyModifier.CONTROL)
-            .keyCode(GLFW.GLFW_KEY_DOWN)
-            .ordinal(1)
-            .build();
-        //        bindings.add(nextMode);
+    nextMode = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("nextMode")
+      .keyModifier(KeyModifier.CONTROL)
+      .keyCode(GLFW.GLFW_KEY_DOWN)
+      .ordinal(1)
+      .build();
+    //        bindings.add(nextMode);
 
-        prevModeOption = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("prevModeOption")
-            .keyModifier(KeyModifier.NONE)
-            .keyCode(GLFW.GLFW_KEY_UP)
-            .ordinal(2)
-            .build();
-        //        bindings.add(prevModeOption);
+    prevModeOption = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("prevModeOption")
+      .keyModifier(KeyModifier.NONE)
+      .keyCode(GLFW.GLFW_KEY_UP)
+      .ordinal(2)
+      .build();
+    //        bindings.add(prevModeOption);
 
-        nextModeOption = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("nextModeOption")
-            .keyModifier(KeyModifier.NONE)
-            .keyCode(GLFW.GLFW_KEY_DOWN)
-            .ordinal(3)
-            .build();
-        //        bindings.add(nextModeOption);
+    nextModeOption = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("nextModeOption")
+      .keyModifier(KeyModifier.NONE)
+      .keyCode(GLFW.GLFW_KEY_DOWN)
+      .ordinal(3)
+      .build();
+    //        bindings.add(nextModeOption);
 
-        horizontalRangePlus = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("horizontalRangePlus")
-            .keyModifier(KeyModifier.NONE)
-            .keyCode(GLFW.GLFW_KEY_KP_ADD)
-            .ordinal(4)
-            .build();
-        bindings.add(horizontalRangePlus);
+    horizontalRangePlus = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("horizontalRangePlus")
+      .keyModifier(KeyModifier.NONE)
+      .keyCode(GLFW.GLFW_KEY_KP_ADD)
+      .ordinal(4)
+      .build();
+    bindings.add(horizontalRangePlus);
 
-        horizontalRangeMinus = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("horizontalRangeMinus")
-            .keyModifier(KeyModifier.NONE)
-            .keyCode(GLFW.GLFW_KEY_KP_SUBTRACT)
-            .ordinal(5)
-            .build();
-        bindings.add(horizontalRangeMinus);
+    horizontalRangeMinus = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("horizontalRangeMinus")
+      .keyModifier(KeyModifier.NONE)
+      .keyCode(GLFW.GLFW_KEY_KP_SUBTRACT)
+      .ordinal(5)
+      .build();
+    bindings.add(horizontalRangeMinus);
 
-        verticalRangePlus = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("verticalRangePlus")
-            .keyModifier(KeyModifier.CONTROL)
-            .keyCode(GLFW.GLFW_KEY_KP_ADD)
-            .ordinal(6)
-            .build();
-        bindings.add(verticalRangePlus);
+    verticalRangePlus = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("verticalRangePlus")
+      .keyModifier(KeyModifier.CONTROL)
+      .keyCode(GLFW.GLFW_KEY_KP_ADD)
+      .ordinal(6)
+      .build();
+    bindings.add(verticalRangePlus);
 
-        verticalRangeMinus = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("verticalRangeMinus")
-            .keyModifier(KeyModifier.CONTROL)
-            .keyCode(GLFW.GLFW_KEY_KP_SUBTRACT)
-            .ordinal(7)
-            .build();
-        bindings.add(verticalRangeMinus);
+    verticalRangeMinus = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("verticalRangeMinus")
+      .keyModifier(KeyModifier.CONTROL)
+      .keyCode(GLFW.GLFW_KEY_KP_SUBTRACT)
+      .ordinal(7)
+      .build();
+    bindings.add(verticalRangeMinus);
 
-        brightnessPlus = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("brightnessPlus")
-            .keyModifier(KeyModifier.ALT)
-            .keyCode(GLFW.GLFW_KEY_KP_ADD)
-            .ordinal(8)
-            .build();
-        //        bindings.add(brightnessPlus);
+    brightnessPlus = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("brightnessPlus")
+      .keyModifier(KeyModifier.ALT)
+      .keyCode(GLFW.GLFW_KEY_KP_ADD)
+      .ordinal(8)
+      .build();
+    //        bindings.add(brightnessPlus);
 
-        brightnessMinus = new SpawnCheckerKeyBinding.Builder(this)
-            .descriptionSuffix("brightnessMinus")
-            .keyModifier(KeyModifier.ALT)
-            .keyCode(GLFW.GLFW_KEY_KP_SUBTRACT)
-            .ordinal(9)
-            .build();
-        //        bindings.add(brightnessMinus);
+    brightnessMinus = new SpawnCheckerKeyBinding.Builder(this)
+      .descriptionSuffix("brightnessMinus")
+      .keyModifier(KeyModifier.ALT)
+      .keyCode(GLFW.GLFW_KEY_KP_SUBTRACT)
+      .ordinal(9)
+      .build();
+    //        bindings.add(brightnessMinus);
 
-        this.bindings = Collections.unmodifiableCollection(bindings);
+    this.bindings = Collections.unmodifiableCollection(bindings);
+  }
+
+  RepeatDelay repeatDelay() {
+    return config.keyConfig().repeatDelay();
+  }
+
+  RepeatRate repeatRate() {
+    return config.keyConfig().repeatRate();
+  }
+
+  public Collection<KeyMapping> bindings() {
+    return Collections.unmodifiableCollection(bindings);
+  }
+
+  public void onTick(long nowMilliTime) {
+    bindings.parallelStream().forEach(s -> s.update(nowMilliTime));
+
+    // mode
+    while (prevMode().isDown()) {
+      modeState.proceedPrevMode();
+    }
+    while (nextMode().isDown()) {
+      modeState.proceedNextMode();
     }
 
-    RepeatDelay repeatDelay() {
-        return config.keyConfig().repeatDelay();
+    // mode option
+    while (prevModeOption().isDown()) {
+      modeState.proceedPrevModeOption();
+    }
+    while (nextModeOption().isDown()) {
+      modeState.proceedNextModeOption();
     }
 
-    RepeatRate repeatRate() {
-        return config.keyConfig().repeatRate();
+    // h range
+    while (horizontalRangePlus().isDown()) {
+      modeState.proceedNextHorizontalRange();
+    }
+    while (horizontalRangeMinus().isDown()) {
+      modeState.proceedPrevHorizontalRange();
     }
 
-    public Collection<KeyBinding> bindings() {
-        return Collections.unmodifiableCollection(bindings);
+    // v range
+    while (verticalRangePlus().isDown()) {
+      modeState.proceedNextVerticalRange();
+    }
+    while (verticalRangeMinus().isDown()) {
+      modeState.proceedPrevVerticalRange();
     }
 
-    public void onTick(long nowMilliTime) {
-        bindings.parallelStream().forEach(s -> s.update(nowMilliTime));
-
-        // mode
-        while (prevMode().isPressed()) {
-            modeState.proceedPrevMode();
-        }
-        while (nextMode().isPressed()) {
-            modeState.proceedNextMode();
-        }
-
-        // mode option
-        while (prevModeOption().isPressed()) {
-            modeState.proceedPrevModeOption();
-        }
-        while (nextModeOption().isPressed()) {
-            modeState.proceedNextModeOption();
-        }
-
-        // h range
-        while (horizontalRangePlus().isPressed()) {
-            modeState.proceedNextHorizontalRange();
-        }
-        while (horizontalRangeMinus().isPressed()) {
-            modeState.proceedPrevHorizontalRange();
-        }
-
-        // v range
-        while (verticalRangePlus().isPressed()) {
-            modeState.proceedNextVerticalRange();
-        }
-        while (verticalRangeMinus().isPressed()) {
-            modeState.proceedPrevVerticalRange();
-        }
-
-        // brightness
-        while (brightnessPlus().isPressed()) {
-            modeState.proceedNextBrightness();
-        }
-        while (brightnessMinus().isPressed()) {
-            modeState.proceedPrevBrightness();
-        }
+    // brightness
+    while (brightnessPlus().isDown()) {
+      modeState.proceedNextBrightness();
     }
+    while (brightnessMinus().isDown()) {
+      modeState.proceedPrevBrightness();
+    }
+  }
 }
 

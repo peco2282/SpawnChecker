@@ -19,52 +19,50 @@
 
 package net.awairo.minecraft.spawnchecker.config;
 
+import lombok.NonNull;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
 
-import lombok.NonNull;
-
-import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
+import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.configGuiKey;
 
 public final class PresetModeConfig {
-    private static final String PATH = "preset_mode";
+  private static final String PATH = "preset_mode";
 
-    private final Updater updater;
+  private final Updater updater;
+  private final BooleanValue drawGuideline;
 
-    PresetModeConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
-        this.updater = updater;
+  // region [preset_mode] guideline
 
-        builder.comment(" Preset mode configurations");
-        builder.push(PATH);
+  PresetModeConfig(@NonNull Updater updater, @NonNull ForgeConfigSpec.Builder builder) {
+    this.updater = updater;
 
-        drawGuideline = builder
-            .comment(
-                " True is drawing spawn check marker guidelines."
-            )
-            .translation(
-                configGuiKey(PATH, "drawGuideline")
-            )
-            .define(
-                "drawGuideline",
-                false
-            );
-    }
+    builder.comment(" Preset mode configurations");
+    builder.push(PATH);
 
-    // region [preset_mode] guideline
+    drawGuideline = builder
+      .comment(
+        " True is drawing spawn check marker guidelines."
+      )
+      .translation(
+        configGuiKey(PATH, "drawGuideline")
+      )
+      .define(
+        "drawGuideline",
+        false
+      );
+  }
 
-    private final BooleanValue drawGuideline;
+  public boolean drawGuideline() {
+    return drawGuideline.get();
+  }
 
-    public boolean drawGuideline() {
-        return drawGuideline.get();
-    }
+  public UpdateResult guidelineOn() {
+    return updater.update(drawGuideline, true);
+  }
 
-    public UpdateResult guidelineOn() {
-        return updater.update(drawGuideline, true);
-    }
+  public UpdateResult guidelineOff() {
+    return updater.update(drawGuideline, false);
+  }
 
-    public UpdateResult guidelineOff() {
-        return updater.update(drawGuideline, false);
-    }
-
-    // endregion
+  // endregion
 }

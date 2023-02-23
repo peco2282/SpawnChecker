@@ -19,64 +19,61 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
-import java.util.Optional;
-import javax.annotation.Nullable;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.vector.Vector3d;
-
 import lombok.Getter;
 import lombok.NonNull;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
+import java.util.Optional;
 
 public class PlayerPos {
 
-    public static Optional<PlayerPos> of(@Nullable Minecraft mayBeMCInstance) {
-        return Optional.ofNullable(mayBeMCInstance)
-            .map(mc -> mc.player)
-            .map(PlayerEntity::getPositionVec)
-            .map(PlayerPos::new);
-    }
+  @NonNull
+  private final Vec3 underlying;
+  @Getter(lazy = true)
+  private final BlockPos blockPos = new BlockPos(underlying.x, underlying.y, underlying.z);
+  private transient int hashCode;
 
-    @NonNull
-    private final Vector3d underlying;
+  @VisibleForTesting
+  PlayerPos(@NonNull Vec3 playerPos) {
+    this.underlying = playerPos;
+  }
 
-    @Getter(lazy = true)
-    private final BlockPos blockPos = new BlockPos(underlying.x, underlying.y, underlying.z);
+  public static Optional<PlayerPos> of(@Nullable Minecraft mayBeMCInstance) {
+    return Optional.ofNullable(mayBeMCInstance)
+      .map(mc -> mc.player)
+      .map(Player::position)
+      .map(PlayerPos::new);
+  }
 
-    public Vector3d get() {
-        return underlying;
-    }
+  public Vec3 get() {
+    return underlying;
+  }
 
-    @VisibleForTesting
-    PlayerPos(@NonNull Vector3d playerPos) {
-        this.underlying = playerPos;
-    }
+  @Override
+  public int hashCode() {
+    int h = hashCode;
+    if (h == 0)
+      h = hashCode = underlying.hashCode();
+    return h;
+  }
 
-    private transient int hashCode;
+  @Override
+  public boolean equals(Object obj) {
+    return obj == this || obj instanceof PlayerPos && ((PlayerPos) obj).underlying.equals(underlying);
+  }
 
-    @Override
-    public int hashCode() {
-        int h = hashCode;
-        if (h == 0)
-            h = hashCode = underlying.hashCode();
-        return h;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        return obj == this || obj instanceof PlayerPos && ((PlayerPos) obj).underlying.equals(underlying);
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("x", underlying.x)
-            .add("y", underlying.y)
-            .add("z", underlying.z)
-            .toString();
-    }
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("x", underlying.x)
+      .add("y", underlying.y)
+      .add("z", underlying.z)
+      .toString();
+  }
 }

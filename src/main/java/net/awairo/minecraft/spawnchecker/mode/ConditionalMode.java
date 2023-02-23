@@ -23,7 +23,7 @@ import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
 
 abstract class ConditionalMode extends PresetMode<ConditionalMode> implements Mode.Conditional {
-    ConditionalMode(Name name, HudIconResource icon, Priority priority) {
-        super(name, icon, priority);
-    }
+  ConditionalMode(Name name, HudIconResource icon, Priority priority) {
+    super(name, icon, priority);
+  }
 }

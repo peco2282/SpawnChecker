@@ -19,31 +19,29 @@
 
 package net.awairo.minecraft.spawnchecker.mode.marker;
 
-import javax.annotation.Nonnull;
 import com.google.common.base.MoreObjects;
-
-import net.minecraft.util.math.vector.Vector3d;
-
-import net.awairo.minecraft.spawnchecker.api.Marker;
-
+import com.mojang.math.Vector3d;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.awairo.minecraft.spawnchecker.api.Marker;
+
+import javax.annotation.Nonnull;
 
 @Getter
 @EqualsAndHashCode
 @RequiredArgsConstructor
 abstract class FixedMarker implements Marker {
 
-    private final Vector3d pos;
+  private final Vector3d pos;
 
-    @Nonnull
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("x", pos.x)
-            .add("y", pos.y)
-            .add("z", pos.z)
-            .toString();
-    }
+  @Nonnull
+  @Override
+  public String toString() {
+    return MoreObjects.toStringHelper(this)
+      .add("x", pos.x)
+      .add("y", pos.y)
+      .add("z", pos.z)
+      .toString();
+  }
 }
