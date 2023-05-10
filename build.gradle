@@ -6,11 +6,13 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "3.+", changing: true
+    classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "5.1.+", changing: true
   }
 }
 plugins {
-  id "net.minecrell.licenser" version "0.4"
+  id 'net.minecraftforge.gradle' version '5.1.+'
+//  id "net.minecrell.licenser" version "0.4"
+  id "org.cadixdev.licenser" version "0.6.1"
 }
 apply plugin: "net.minecraftforge.gradle"
 apply plugin: "eclipse" // Do not delete it, because referred from FG
@@ -31,21 +33,24 @@ ext {
     buildNumber = "local"
     snapshot = "-SNAPSHOT"
   }
-  minecraftVersion = "1.16.4"
-  minecraftVersionRange = "[1.16.4]"
-  forgeVersionRange = "[35,)"
-  forgeVersion = "1.16.4-35.0.1"
-  mappingsChannel = "snapshot"
-  mappingsVersion = "20201028-1.16.3"
+  minecraftVersion = "1.19"
+  minecraftVersionRange = "[1.19,1.20)"
+  forgeVersionRange = "[41,)"
+  forgeVersion = "1.19-41.1.0"
+  mappingsChannel = "official" // "snapshot"
+  mappingsVersion = "1.19" // "20201028-1.16.3"
 }
 
 version = "${versionTag}.${commitCount}${snapshot}"
 group = "net.awairo.minecraft.spawnchecker"
 archivesBaseName = "spawnchecker-${minecraftVersion}"
 
-sourceCompatibility = targetCompatibility = javaVersion
-tasks.withType(JavaCompile) {
-  sourceCompatibility = targetCompatibility = javaVersion
+java {
+  toolchain.languageVersion = JavaLanguageVersion.of(17)
+}
+//sourceCompatibility = targetCompatibility = javaVersion
+tasks.withType(JavaCompile).configureEach {
+//  sourceCompatibility = targetCompatibility = javaVersion
   options.encoding = "UTF-8"
 }
 
@@ -148,7 +153,7 @@ license {
   exclude "**/*.toml"
 }
 
-task processModsTomlResources(type: Copy) {
+tasks.register('processModsTomlResources', Copy) {
   into(sourceSets.main.output.resourcesDir)
   from(sourceSets.main.resources) {
     include "META-INF/mods.toml"
@@ -186,7 +191,7 @@ jar {
     attributes "Specification-Version": "3.0"
     attributes "Implementation-Title": project.group
     attributes "Implementation-Vendor": "alalwww"
-    attributes "Implementation-Version": "${version}"
+    attributes "Implementation-Version": "${archiveVersion}"
     attributes "Implementation-Timestamp": now(UTC).toString()
     attributes "CI-Build-Number": buildNumber
     attributes "Git-Commit-Hash": commitHash
@@ -200,11 +205,11 @@ test {
   }
 }
 
-task signJar {
+tasks.register('signJar') {
   dependsOn "reobfJar"
   description = "signing jar file"
 
-  def jarFile = jar.archivePath /* jar.archiveFile */
+  def jarFile = jar.archiveFile /* jar.archiveFile */
 
   inputs.file jarFile
   outputs.file jarFile
