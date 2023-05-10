@@ -6,14 +6,18 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "3.+", changing: true
+    classpath group: "net.minecraftforge.gradle", name: "ForgeGradle", version: "5.+", changing: true
+//    classpath "gradle.plugin.net.minecrell:licenser:0.4.1"
   }
 }
 plugins {
-  id "net.minecrell.licenser" version "0.4"
+  id 'net.minecraftforge.gradle' version '5.1.+'
+//  id "net.minecrell.licenser" version "0.4"
+  id "org.cadixdev.licenser" version "0.6.+"
 }
 apply plugin: "net.minecraftforge.gradle"
 apply plugin: "eclipse" // Do not delete it, because referred from FG
+apply plugin: 'maven-publish'
 apply from: "./gradle/versions.gradle"
 
 import org.apache.tools.ant.filters.FixCrLfFilter
@@ -31,18 +35,19 @@ ext {
     buildNumber = "local"
     snapshot = "-SNAPSHOT"
   }
-  minecraftVersion = "1.16.4"
-  minecraftVersionRange = "[1.16.4]"
-  forgeVersionRange = "[35,)"
-  forgeVersion = "1.16.4-35.0.1"
-  mappingsChannel = "snapshot"
-  mappingsVersion = "20201028-1.16.3"
+  minecraftVersion = "1.18"
+  minecraftVersionRange = "[1.18,1.19)"
+  forgeVersionRange = "[38,)"
+  forgeVersion = "1.18-38.0.17"
+  mappingsChannel = "official" //"snapshot"
+  mappingsVersion = "1.18" // "20201028-1.16.3"
 }
 
 version = "${versionTag}.${commitCount}${snapshot}"
 group = "net.awairo.minecraft.spawnchecker"
 archivesBaseName = "spawnchecker-${minecraftVersion}"
 
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 sourceCompatibility = targetCompatibility = javaVersion
 tasks.withType(JavaCompile) {
   sourceCompatibility = targetCompatibility = javaVersion
