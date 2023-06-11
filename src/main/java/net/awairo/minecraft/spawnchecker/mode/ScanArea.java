@@ -26,8 +26,6 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.CubeCoordinateIterator;
 
 import net.awairo.minecraft.spawnchecker.api.PlayerPos;
 import net.awairo.minecraft.spawnchecker.api.ScanRange;
@@ -35,6 +33,7 @@ import net.awairo.minecraft.spawnchecker.api.ScanRange;
 import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import lombok.val;
+import net.minecraft.core.BlockPos;
 
 @Value
 final class ScanArea {

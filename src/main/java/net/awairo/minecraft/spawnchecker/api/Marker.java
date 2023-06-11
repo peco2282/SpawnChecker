@@ -19,6 +19,7 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
+
 public interface Marker {
     void draw(MarkerRenderer renderer);
 

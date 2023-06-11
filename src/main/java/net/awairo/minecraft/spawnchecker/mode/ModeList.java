@@ -33,7 +33,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
-import lombok.var;
+//import lombok.var;
 
 @Log4j2
 @NoArgsConstructor(access = AccessLevel.PACKAGE)

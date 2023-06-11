@@ -48,9 +48,9 @@ group = "net.awairo.minecraft.spawnchecker"
 archivesBaseName = "spawnchecker-${minecraftVersion}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-sourceCompatibility = targetCompatibility = javaVersion
+// sourceCompatibility = targetCompatibility = javaVersion
 tasks.withType(JavaCompile) {
-  sourceCompatibility = targetCompatibility = javaVersion
+// sourceCompatibility = targetCompatibility = javaVersion
   options.encoding = "UTF-8"
 }
 

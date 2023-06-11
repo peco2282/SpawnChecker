@@ -21,13 +21,12 @@ package net.awairo.minecraft.spawnchecker.mode;
 
 import java.util.Objects;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SlabBlock;
-import net.minecraft.state.properties.SlabType;
-
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SlabBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.SlabType;
 
 @RequiredArgsConstructor
 @Getter
@@ -52,7 +51,7 @@ public enum YOffset {
     }
 
     private static boolean singleTopSlab(BlockState underState) {
-        return underState.getBlock() instanceof SlabBlock && underState.get(SlabBlock.TYPE) == SlabType.TOP;
+        return underState.getBlock() instanceof SlabBlock && underState.getValue(SlabBlock.TYPE) == SlabType.TOP;
     }
 
     @Override

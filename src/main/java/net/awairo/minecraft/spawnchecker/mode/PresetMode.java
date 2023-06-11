@@ -19,7 +19,7 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import net.awairo.minecraft.spawnchecker.api.Mode;
 import net.awairo.minecraft.spawnchecker.hud.HudIconResource;

@@ -23,10 +23,11 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Util;
+import net.minecraft.client.gui.Font;
+import net.minecraft.resources.ResourceLocation;
 
 import net.awairo.minecraft.spawnchecker.api.Color;
 import net.awairo.minecraft.spawnchecker.api.HudData;
@@ -63,34 +64,34 @@ public final class HudRendererImpl implements HudRenderer {
     }
 
     @Override
-    public FontRenderer fontRenderer() {
-        return minecraft.fontRenderer;
+    public Font fontRenderer() {
+        return minecraft.font;
     }
 
     @Override
     public void bindTexture(ResourceLocation texture) {
-        minecraft.textureManager.bindTexture(texture);
+        minecraft.textureManager.bindForSetup(texture);
     }
 
     @Override
     public void addVertex(double x, double y, double z) {
         buffer()
-            .pos(x, y, z)
+            .vertex(x, y, z)
             .endVertex();
     }
 
     @Override
     public void addVertex(double x, double y, double z, float u, float v) {
         buffer()
-            .pos(x, y, z)
-            .tex(u, v)
+            .vertex(x, y, z)
+            .uv(u, v)
             .endVertex();
     }
 
     @Override
     public void addVertex(double x, double y, double z, Color color) {
         buffer()
-            .pos(x, y, z)
+            .vertex(x, y, z)
             .color(color.red(), color.green(), color.blue(), color.alpha())
             .endVertex();
     }
@@ -98,9 +99,9 @@ public final class HudRendererImpl implements HudRenderer {
     @Override
     public void addVertex(double x, double y, double z, float u, float v, Color color) {
         buffer()
-            .pos(x, y, z)
+            .vertex(x, y, z)
             .color(color.red(), color.green(), color.blue(), color.alpha())
-            .tex(u, v)
+            .uv(u, v)
             .endVertex();
     }
 
@@ -115,26 +116,26 @@ public final class HudRendererImpl implements HudRenderer {
     }
 
     public void render(int tickCount, float partialTicks) {
-        if (hudData == null || minecraft.isGamePaused())
+        if (hudData == null || minecraft.isPaused())
             return;
-
+        PoseStack stack = new PoseStack();
         this.tickCount = tickCount;
         this.partialTicks = partialTicks;
-        val now = Util.milliTime();
+        val now = Util.getMillis();
         if (showStartTime == UNDEFINED) {
             showStartTime = now;
         }
-        val h = minecraft.getMainWindow().getScaledHeight();
-        val w = minecraft.getMainWindow().getScaledWidth();
-        RenderSystem.pushMatrix();
-        RenderSystem.translated(
+        val h = minecraft.getWindow().getScreenHeight();
+        val w = minecraft.getWindow().getScreenWidth();
+        stack.pushPose();
+        stack.translate(
             w / 20 + config.hudConfig().xOffset().value(),
             h / 3 + config.hudConfig().yOffset().value(),
             0d
         );
-        RenderSystem.scalef(1.0f, 1.0f, 1f);
+        stack.scale(1.0f, 1.0f, 1f);
         val hudVisibility = hudData.draw(this, now - showStartTime);
-        RenderSystem.popMatrix();
+        stack.popPose();
 
         if (hudVisibility == Visibility.HIDE)
             removeData();

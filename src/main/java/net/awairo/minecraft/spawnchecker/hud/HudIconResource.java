@@ -19,11 +19,10 @@
 
 package net.awairo.minecraft.spawnchecker.hud;
 
-import net.minecraft.util.ResourceLocation;
-
 import net.awairo.minecraft.spawnchecker.SpawnChecker;
 
 import lombok.Getter;
+import net.minecraft.resources.ResourceLocation;
 
 public enum HudIconResource {
     SPAWN_CHECKER("spawn_checker.png"),

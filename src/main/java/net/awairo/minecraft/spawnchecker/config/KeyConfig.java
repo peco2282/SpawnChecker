@@ -26,7 +26,7 @@ import net.awairo.minecraft.spawnchecker.keybinding.RepeatDelay;
 import net.awairo.minecraft.spawnchecker.keybinding.RepeatRate;
 
 import lombok.NonNull;
-import lombok.var;
+//import lombok.var;
 
 import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
 

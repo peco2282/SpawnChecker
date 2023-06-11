@@ -22,8 +22,6 @@ package net.awairo.minecraft.spawnchecker.mode.marker;
 import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 
 import net.awairo.minecraft.spawnchecker.SpawnChecker;
 import net.awairo.minecraft.spawnchecker.api.Color;
@@ -40,6 +38,8 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.val;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public class SpawnPointMarker implements Marker {
@@ -110,13 +110,12 @@ public class SpawnPointMarker implements Marker {
 
     @Override
     public void draw(MarkerRenderer renderer) {
-        if (renderer.renderManager().info == null)
+        if (renderer.renderManager().camera == null)
             return;
-
-        val viewerPos = renderer.renderManager().info.getProjectedView();
+        val viewerPos = renderer.renderManager().camera.getPosition();
         renderer.push();
         {
-            color.setToColor4F(RenderSystem::color4f);
+            color.setToColor4F(RenderSystem::setShaderColor);
             renderer.translate(
                 ((double) pos.getX()) - viewerPos.x,
                 ((double) pos.getY()) - viewerPos.y - 1d, // 1ブロック下げる
@@ -132,7 +131,7 @@ public class SpawnPointMarker implements Marker {
 
         renderer.push();
         {
-            color.setToColor4F(RenderSystem::color4f);
+            color.setToColor4F(RenderSystem::setShaderColor);
             renderer.translate(
                 ((double) pos.getX()) - viewerPos.x,
                 ((double) pos.getY()) - viewerPos.y,

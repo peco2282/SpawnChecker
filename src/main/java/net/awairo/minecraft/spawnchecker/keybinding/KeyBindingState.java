@@ -22,10 +22,10 @@ package net.awairo.minecraft.spawnchecker.keybinding;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+
+import net.minecraft.client.KeyMapping;
 import net.minecraftforge.client.settings.KeyModifier;
 import org.lwjgl.glfw.GLFW;
-
-import net.minecraft.client.settings.KeyBinding;
 
 import net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig;
 import net.awairo.minecraft.spawnchecker.mode.ModeState;
@@ -161,7 +161,7 @@ public final class KeyBindingState {
         return config.keyConfig().repeatRate();
     }
 
-    public Collection<KeyBinding> bindings() {
+    public Collection<KeyMapping> bindings() {
         return Collections.unmodifiableCollection(bindings);
     }
 
@@ -169,42 +169,42 @@ public final class KeyBindingState {
         bindings.parallelStream().forEach(s -> s.update(nowMilliTime));
 
         // mode
-        while (prevMode().isPressed()) {
+        while (prevMode().isDown()) {
             modeState.proceedPrevMode();
         }
-        while (nextMode().isPressed()) {
+        while (nextMode().isDown()) {
             modeState.proceedNextMode();
         }
 
         // mode option
-        while (prevModeOption().isPressed()) {
+        while (prevModeOption().isDown()) {
             modeState.proceedPrevModeOption();
         }
-        while (nextModeOption().isPressed()) {
+        while (nextModeOption().isDown()) {
             modeState.proceedNextModeOption();
         }
 
         // h range
-        while (horizontalRangePlus().isPressed()) {
+        while (horizontalRangePlus().isDown()) {
             modeState.proceedNextHorizontalRange();
         }
-        while (horizontalRangeMinus().isPressed()) {
+        while (horizontalRangeMinus().isDown()) {
             modeState.proceedPrevHorizontalRange();
         }
 
         // v range
-        while (verticalRangePlus().isPressed()) {
+        while (verticalRangePlus().isDown()) {
             modeState.proceedNextVerticalRange();
         }
-        while (verticalRangeMinus().isPressed()) {
+        while (verticalRangeMinus().isDown()) {
             modeState.proceedPrevVerticalRange();
         }
 
         // brightness
-        while (brightnessPlus().isPressed()) {
+        while (brightnessPlus().isDown()) {
             modeState.proceedNextBrightness();
         }
-        while (brightnessMinus().isPressed()) {
+        while (brightnessMinus().isDown()) {
             modeState.proceedPrevBrightness();
         }
     }
