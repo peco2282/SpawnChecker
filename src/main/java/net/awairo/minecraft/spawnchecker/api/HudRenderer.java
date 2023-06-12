@@ -19,9 +19,10 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
-import net.minecraft.client.gui.FontRenderer;
+//import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Font;
 
 public interface HudRenderer extends Renderer {
     int tickCount();
-    FontRenderer fontRenderer();
+    Font fontRenderer();
 }

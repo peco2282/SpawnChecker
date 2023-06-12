@@ -2,7 +2,7 @@
 # SpawnChecker.
 #
 modLoader="javafml"
-loaderVersion="{loaderVersion}"
+loaderVersion="{forgeVersionRange}"
 license="GNU LGPLv3"
 issueTrackerURL="https://github.com/alalwww/SpawnChecker/issues"
 

@@ -19,18 +19,30 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
-import java.util.Comparator;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-import javax.annotation.Nonnull;
-
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
+//import java.util.Comparator;
+//import java.util.function.Consumer;
+//import java.util.stream.Stream;
+//import javax.annotation.Nonnull;
+//
+//import net.minecraft.client.world.ClientWorld;
+//import net.minecraft.util.ResourceLocation;
+//import net.minecraft.util.text.ITextComponent;
+//import net.minecraft.util.text.TranslationTextComponent;
+//
+//import lombok.NonNull;
+//import lombok.Value;
 
 import lombok.NonNull;
 import lombok.Value;
+import net.awairo.minecraft.spawnchecker.util.TranslationTextComponent;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+
+import javax.annotation.Nonnull;
+import java.util.Comparator;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 public interface Mode {
     Name name();
@@ -84,7 +96,7 @@ public interface Mode {
     }
 
     interface State {
-        ClientWorld worldClient();
+        ClientLevel worldClient();
         int tickCount();
         ScanRange.Horizontal horizontalRange();
         ScanRange.Vertical verticalRange();
@@ -97,7 +109,7 @@ public interface Mode {
 
         private final TranslationTextComponent textComponent;
 
-        public ITextComponent textComponent() {
+        public Component textComponent() {
             return textComponent;
         }
 

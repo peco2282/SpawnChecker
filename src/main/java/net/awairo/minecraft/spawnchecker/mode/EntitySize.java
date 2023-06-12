@@ -19,15 +19,19 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.VoxelShapes;
+//import net.minecraft.client.world.ClientWorld;
+//import net.minecraft.util.math.AxisAlignedBB;
+//import net.minecraft.util.math.BlockPos;
+//import net.minecraft.util.math.shapes.VoxelShapes;
 
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -45,21 +49,21 @@ enum EntitySize {
     private final float height;
 
     // EntityLiving#isNotColliding(IWorldReaderBase)
-    boolean isNotColliding(ClientWorld worldIn, BlockPos pos) {
+    boolean isNotColliding(ClientLevel worldIn, BlockPos pos) {
         val bb = boundingBox(pos);
         return !worldIn.containsAnyLiquid(bb)
-            && worldIn.hasNoCollisions(null, bb)
-            && worldIn.checkNoEntityCollision(null, VoxelShapes.create(bb));
+            && worldIn.noCollision(null, bb)
+            && worldIn.isUnobstructed(null, Shapes.create(bb));
     }
 
-    boolean isNotCollidingWithoutOtherEntityCollision(ClientWorld worldIn, BlockPos pos) {
+    boolean isNotCollidingWithoutOtherEntityCollision(ClientLevel worldIn, BlockPos pos) {
         val bb = boundingBox(pos);
         return !worldIn.containsAnyLiquid(bb)
-            && worldIn.hasNoCollisions(null, bb);
+            && worldIn.noCollision(null, bb);
     }
 
-    AxisAlignedBB boundingBox(BlockPos pos) {
-        return new AxisAlignedBB(
+    AABB boundingBox(BlockPos pos) {
+        return new AABB(
             (double) pos.getX(),
             (double) pos.getY(),
             (double) pos.getZ(),

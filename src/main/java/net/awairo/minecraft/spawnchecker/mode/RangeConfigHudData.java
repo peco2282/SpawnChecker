@@ -19,13 +19,15 @@
 
 package net.awairo.minecraft.spawnchecker.mode;
 
-import com.mojang.blaze3d.matrix.MatrixStack;
+//import com.mojang.blaze3d.matrix.MatrixStack;
+//
+//import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+//import net.minecraft.util.ResourceLocation;
+//import net.minecraft.util.text.ITextComponent;
+//import net.minecraft.util.text.TranslationTextComponent;
 
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TranslationTextComponent;
-
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.awairo.minecraft.spawnchecker.api.Color;
 import net.awairo.minecraft.spawnchecker.api.HudData;
 import net.awairo.minecraft.spawnchecker.api.HudRenderer;
@@ -35,6 +37,9 @@ import net.awairo.minecraft.spawnchecker.hud.HudIconResource;
 
 import lombok.NonNull;
 import lombok.val;
+import net.awairo.minecraft.spawnchecker.util.TranslationTextComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 
 final class RangeConfigHudData extends HudData.Simple {
 
@@ -43,8 +48,8 @@ final class RangeConfigHudData extends HudData.Simple {
 
     private static final float LINE_OFFSET = 7.0f;
 
-    private final ITextComponent hRange;
-    private final ITextComponent vRange;
+    private final Component hRange;
+    private final Component vRange;
 
     private final double iconMinX;
     private final double iconMaxX;
@@ -68,15 +73,15 @@ final class RangeConfigHudData extends HudData.Simple {
 
     @Override
     @SuppressWarnings("Duplicates")
-    protected void drawIcon(MatrixStack stack, ResourceLocation icon, HudRenderer renderer, Color color) {
+    protected void drawIcon(PoseStack stack, ResourceLocation icon, HudRenderer renderer, Color color) {
         super.drawIcon(stack, icon, renderer, color);
 
         final double xMin, yMin1, yMin2, xMax, yMax1, yMax2, z;
         final float uMin, uMax, vMin, vMax;
         xMin = iconMinX;
         xMax = iconMaxX;
-        yMin1 = renderer.fontRenderer().FONT_HEIGHT + LINE_OFFSET;
-        yMax1 = renderer.fontRenderer().FONT_HEIGHT + LINE_OFFSET + ICON_SIZE;
+        yMin1 = renderer.fontRenderer().lineHeight + LINE_OFFSET;
+        yMax1 = renderer.fontRenderer().lineHeight + LINE_OFFSET + ICON_SIZE;
         yMin2 = yMin1 * 2;
         yMax2 = yMin1 * 2 + ICON_SIZE;
         z = 0d;
@@ -84,7 +89,7 @@ final class RangeConfigHudData extends HudData.Simple {
         uMax = vMax = 1f;
 
         renderer.bindTexture(HudIconResource.HORIZONTAL_RANGE.location());
-        renderer.beginQuads(DefaultVertexFormats.POSITION_COLOR_TEX);
+        renderer.beginQuads(DefaultVertexFormat.POSITION_COLOR_TEX);
         renderer.addVertex(xMin, yMin1, z, uMin, vMin, color);
         renderer.addVertex(xMin, yMax1, z, uMin, vMax, color);
         renderer.addVertex(xMax, yMax1, z, uMax, vMax, color);
@@ -92,7 +97,7 @@ final class RangeConfigHudData extends HudData.Simple {
         renderer.draw();
 
         renderer.bindTexture(HudIconResource.VERTICAL_RANGE.location());
-        renderer.beginQuads(DefaultVertexFormats.POSITION_COLOR_TEX);
+        renderer.beginQuads(DefaultVertexFormat.POSITION_COLOR_TEX);
         renderer.addVertex(xMin, yMin2, z, uMin, vMin, color);
         renderer.addVertex(xMin, yMax2, z, uMin, vMax, color);
         renderer.addVertex(xMax, yMax2, z, uMax, vMax, color);
@@ -102,27 +107,27 @@ final class RangeConfigHudData extends HudData.Simple {
     }
 
     @Override
-    protected void drawText(MatrixStack stack, ITextComponent text, HudRenderer renderer, Color color) {
+    protected void drawText(PoseStack stack, Component text, HudRenderer renderer, Color color) {
         if (isTransparentText(color))
             return;
 
         super.drawText(stack, text, renderer, color);
 
         renderer.fontRenderer()
-            .drawStringWithShadow(
+            .drawShadow(
                 stack,
                 hRange.getString(),
                 textX,
-                TEXT_Y + renderer.fontRenderer().FONT_HEIGHT + LINE_OFFSET,
+                TEXT_Y + renderer.fontRenderer().lineHeight + LINE_OFFSET,
                 color.toInt()
             );
 
         renderer.fontRenderer()
-            .drawStringWithShadow(
+            .drawShadow(
                 stack,
                 vRange.getString(),
                 textX,
-                TEXT_Y + (renderer.fontRenderer().FONT_HEIGHT + LINE_OFFSET) * 2,
+                TEXT_Y + (renderer.fontRenderer().lineHeight + LINE_OFFSET) * 2,
                 color.toInt()
             );
     }

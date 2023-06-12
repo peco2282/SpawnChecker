@@ -19,7 +19,8 @@
 
 package net.awairo.minecraft.spawnchecker.hud;
 
-import net.minecraft.util.ResourceLocation;
+//import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 
 import net.awairo.minecraft.spawnchecker.SpawnChecker;
 

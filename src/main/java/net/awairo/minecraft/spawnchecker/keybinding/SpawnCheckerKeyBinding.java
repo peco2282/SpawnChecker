@@ -21,20 +21,23 @@ package net.awairo.minecraft.spawnchecker.keybinding;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import net.minecraftforge.client.settings.KeyModifier;
+//import net.minecraftforge.client.settings.KeyModifier;
+//
+//import net.minecraft.client.settings.KeyBinding;
+//import net.minecraft.client.util.InputMappings.Type;
 
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.util.InputMappings.Type;
-
+import com.mojang.blaze3d.platform.InputConstants;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.extern.log4j.Log4j2;
+import net.minecraft.client.KeyMapping;
+import net.minecraftforge.client.settings.KeyModifier;
 
 @Log4j2
-public final class SpawnCheckerKeyBinding extends KeyBinding {
+public final class SpawnCheckerKeyBinding extends KeyMapping {
 
     private static final String CATEGORY = "spawnchecker.key.categoryName";
     private static final String KEY_BINDING_DESCRIPTION_PREFIX = "spawnchecker.key.";
@@ -59,7 +62,7 @@ public final class SpawnCheckerKeyBinding extends KeyBinding {
             description,
             SpawnCheckerKeyConflictContext.INSTANCE,
             keyModifier,
-            Type.KEYSYM,
+            InputConstants.Type.KEYSYM,
             keyCode,
             CATEGORY
         );
@@ -68,7 +71,7 @@ public final class SpawnCheckerKeyBinding extends KeyBinding {
     }
 
     @Override
-    public int compareTo(final KeyBinding other) {
+    public int compareTo(final KeyMapping other) {
         if (other instanceof SpawnCheckerKeyBinding) {
             return Integer.compare(ordinal, ((SpawnCheckerKeyBinding) other).ordinal);
         }
@@ -76,13 +79,13 @@ public final class SpawnCheckerKeyBinding extends KeyBinding {
     }
 
     @Override
-    public boolean isPressed() {
+    public boolean consumeClick() {
         return pressCount.getAndUpdate(prev -> Math.max(0, prev - 1)) > 0;
     }
 
     void update(long nowMilliTime) {
 
-        if (isKeyDown()) {
+        if (isDown()) {
             if (isBeforePressed()) {
                 pressTime = nowMilliTime - pressStartMillis;
                 if (isRepeated(nowMilliTime)) {
@@ -100,7 +103,7 @@ public final class SpawnCheckerKeyBinding extends KeyBinding {
         }
 
         // noinspection StatementWithEmptyBody
-        while (super.isPressed()) {
+        while (super.consumeClick()) {
             // consume underlying pressTime
         }
     }

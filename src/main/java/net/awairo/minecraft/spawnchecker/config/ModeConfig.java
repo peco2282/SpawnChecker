@@ -32,7 +32,7 @@ import net.awairo.minecraft.spawnchecker.mode.SpawnCheckMode;
 import net.awairo.minecraft.spawnchecker.mode.UpdateTimer.Interval;
 
 import lombok.NonNull;
-import lombok.var;
+//import lombok.var;
 
 import static net.awairo.minecraft.spawnchecker.config.SpawnCheckerConfig.*;
 

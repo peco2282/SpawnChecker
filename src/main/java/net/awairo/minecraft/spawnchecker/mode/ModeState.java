@@ -24,12 +24,14 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import com.mojang.blaze3d.matrix.MatrixStack;
+//import com.mojang.blaze3d.matrix.MatrixStack;
+//
+//import net.minecraft.client.Minecraft;
+//import net.minecraft.client.multiplayer.ClientLevel;
+//import net.minecraft.client.renderer.WorldRenderer;
+//import net.minecraft.client.world.ClientWorld;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.awairo.minecraft.spawnchecker.api.Brightness;
 import net.awairo.minecraft.spawnchecker.api.HudData;
 import net.awairo.minecraft.spawnchecker.api.HudData.ShowDuration;
@@ -47,6 +49,9 @@ import lombok.Setter;
 import lombok.Value;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
 
 @Log4j2
 public class ModeState {
@@ -62,7 +67,7 @@ public class ModeState {
     @Nullable
     @Getter(AccessLevel.PUBLIC)
     @Setter(AccessLevel.PRIVATE)
-    private ClientWorld worldClient = null;
+    private ClientLevel worldClient = null;
 
     private boolean worldClientLoaded() { return !worldClientNotLoaded(); }
 
@@ -146,7 +151,7 @@ public class ModeState {
         }
     }
 
-    public void loadWorldClient(ClientWorld loadedWorld) {
+    public void loadWorldClient(ClientLevel loadedWorld) {
         if (worldClientLoaded()) {
             log.debug("World change. ({} -> {})", worldClient(), loadedWorld);
             unloadWorldClient(worldClient());
@@ -155,7 +160,7 @@ public class ModeState {
         log.debug("Load world. ({})", loadedWorld);
     }
 
-    public void unloadWorldClient(ClientWorld unloadingWorld) {
+    public void unloadWorldClient(ClientLevel unloadingWorld) {
         if (worldClient() == unloadingWorld) { // because equals not implemented
             log.debug("Unload world. ({})", unloadingWorld);
             deactivateCurrentMode(new ModeStateSnapshot());
@@ -190,7 +195,7 @@ public class ModeState {
         });
     }
 
-    public void renderMarkers(WorldRenderer worldRenderer, float partialTicks, MatrixStack matrixStack) {
+    public void renderMarkers(LevelRenderer worldRenderer, float partialTicks, PoseStack matrixStack) {
         if (worldClientNotLoaded())
             return;
 
@@ -199,7 +204,7 @@ public class ModeState {
             partialTicks,
             matrixStack,
             minecraft.getTextureManager(),
-            minecraft.getRenderManager()
+            minecraft.getEntityRenderDispatcher()
         );
 
         markers.forEach(m -> m.draw(renderer));
@@ -261,7 +266,7 @@ public class ModeState {
             );
         }
 
-        private final ClientWorld worldClient;
+        private final ClientLevel worldClient;
         private final int tickCount;
         private final Horizontal horizontalRange;
         private final Vertical verticalRange;

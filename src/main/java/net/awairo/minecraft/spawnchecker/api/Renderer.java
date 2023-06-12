@@ -19,61 +19,67 @@
 
 package net.awairo.minecraft.spawnchecker.api;
 
-import org.lwjgl.opengl.GL11;
+//import org.lwjgl.opengl.GL11;
+//
+//import net.minecraft.client.renderer.BufferBuilder;
+//import net.minecraft.client.renderer.Tessellator;
+//import net.minecraft.client.renderer.vertex.VertexFormat;
+//import net.minecraft.util.ResourceLocation;
 
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.util.ResourceLocation;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.resources.ResourceLocation;
 
 public interface Renderer {
     void bindTexture(ResourceLocation texture);
 
-    default Tessellator tessellator() {
-        return Tessellator.getInstance();
+    default Tesselator tessellator() {
+        return Tesselator.getInstance();
     }
 
     default BufferBuilder buffer() {
-        return tessellator().getBuffer();
+        return tessellator().getBuilder();
     }
 
-    default void beginPoints(VertexFormat format) {
-        begin(GL11.GL_POINT, format);
-    }
+//    default void beginPoints(VertexFormat format) {
+//        begin(GL11.GL_POINT, format);
+//    }
 
     default void beginLines(VertexFormat format) {
-        begin(GL11.GL_LINES, format);
+        begin(VertexFormat.Mode.LINES, format);
     }
 
-    default void beginLineLoop(VertexFormat format) {
-        begin(GL11.GL_LINE_LOOP, format);
-    }
+//    default void beginLineLoop(VertexFormat format) {
+//        begin(GL11.GL_LINE_LOOP, format);
+//    }
 
     default void beginTriangles(VertexFormat format) {
-        begin(GL11.GL_TRIANGLES, format);
+        begin(VertexFormat.Mode.TRIANGLES, format);
     }
 
     default void beginTriangleStrip(VertexFormat format) {
-        begin(GL11.GL_TRIANGLE_STRIP, format);
+        begin(VertexFormat.Mode.TRIANGLE_STRIP, format);
     }
 
     default void beginTriangleFan(VertexFormat format) {
-        begin(GL11.GL_TRIANGLE_FAN, format);
+        begin(VertexFormat.Mode.TRIANGLE_FAN, format);
     }
 
     default void beginQuads(VertexFormat format) {
-        begin(GL11.GL_QUADS, format);
+        begin(VertexFormat.Mode.QUADS, format);
     }
 
-    default void beginQuadStrip(VertexFormat format) {
-        begin(GL11.GL_QUAD_STRIP, format);
-    }
+//    default void beginQuadStrip(VertexFormat format) {
+//        begin(GL11.GL_QUAD_STRIP, format);
+//    }
 
-    default void beginPolygon(VertexFormat format) {
-        begin(GL11.GL_POLYGON, format);
-    }
+//    default void beginPolygon(VertexFormat format) {
+//        begin(GL11.GL_POLYGON, format);
+//    }
 
-    default void begin(int glMode, VertexFormat format) {
+//    default void begin(int glMode, VertexFormat format) {
+    default void begin(VertexFormat.Mode glMode, VertexFormat format) {
         buffer().begin(glMode, format);
     }
 
@@ -86,7 +92,7 @@ public interface Renderer {
     void addVertex(double x, double y, double z, float u, float v, Color color);
 
     default void draw() {
-        tessellator().draw();
+        tessellator().end();
     }
 
     float partialTicks();
