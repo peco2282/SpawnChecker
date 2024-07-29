@@ -32,12 +32,6 @@ ext {
     buildNumber = "local"
     snapshot = "-SNAPSHOT"
   }
-  minecraftVersion = "1.17.1"
-  minecraftVersionRange = "[1.17.1]"
-  forgeVersionRange = "[37,)"
-  forgeVersion = "1.17.1-37.1.1"
-  mappingsChannel = "official"
-  mappingsVersion = "1.17.1" // "20201028-1.16.3"
 }
 
 version = "${versionTag}.${commitCount}${snapshot}"
