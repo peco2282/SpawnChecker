@@ -31,12 +31,6 @@ ext {
     buildNumber = "local"
     snapshot = "-SNAPSHOT"
   }
-  minecraftVersion = "1.16.4"
-  minecraftVersionRange = "[1.16.4]"
-  forgeVersionRange = "[35,)"
-  forgeVersion = "1.16.4-35.0.1"
-  mappingsChannel = "snapshot"
-  mappingsVersion = "20201028-1.16.3"
 }
 
 version = "${versionTag}.${commitCount}${snapshot}"
@@ -58,17 +52,17 @@ repositories {
 dependencies {
   minecraft "net.minecraftforge:forge:${forgeVersion}"
 
-  implementation "com.google.code.findbugs:jsr305:1.0"
+  implementation "com.google.code.findbugs:jsr305:${jsr305Version}"
 
-  compileOnly "org.projectlombok:lombok:1.18.+"
-  annotationProcessor "org.projectlombok:lombok:1.18.+"
-  testCompileOnly "org.projectlombok:lombok:1.18.+"
-  testAnnotationProcessor "org.projectlombok:lombok:1.18.+"
+  compileOnly "org.projectlombok:lombok:${lombokVersion}"
+  annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+  testCompileOnly "org.projectlombok:lombok:${lombokVersion}"
+  testAnnotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-  testImplementation "org.mockito:mockito-core:2.+"
-  testImplementation "org.apiguardian:apiguardian-api:1.0.0"
-  testImplementation "org.junit.jupiter:junit-jupiter-api:5.+"
-  testImplementation "org.junit.jupiter:junit-jupiter-engine:5.+"
+  testImplementation "org.mockito:mockito-core:${mockitoVersion}"
+  testImplementation "org.apiguardian:apiguardian-api:${apiguardianVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-api:${junitVersion}"
+  testImplementation "org.junit.jupiter:junit-jupiter-engine:${junitVersion}"
 }
 
 minecraft {

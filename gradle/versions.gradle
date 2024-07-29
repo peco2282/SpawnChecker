@@ -4,7 +4,7 @@ ant.condition(property: "os", value: "unix") { os(family: "unix") }
 def out = new ByteArrayOutputStream()
 exec {
   def releaseTagPattern = "v*.*"
-  def describeCmd = ["git", "describe", "--match", releaseTagPattern]
+  def describeCmd = ["git", "describe", "--tags", "--match", releaseTagPattern]
   switch (ant.properties.os) {
     case "windows":
       commandLine(["cmd", "/c"] + describeCmd)
