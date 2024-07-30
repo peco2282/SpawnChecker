@@ -16,9 +16,10 @@ apply plugin: "net.minecraftforge.gradle"
 apply plugin: "eclipse" // Do not delete it, because referred from FG
 //apply from: "./gradle/versions.gradle"
 // Add this at the top of your build.gradle file
-if (!System.getenv("GITHUB_ACTIONS")) {
+
+def local = !System.getenv("GITHUB_ACTIONS")
+if (local)
   apply from: "./gradle/versions.gradle"
-}
 
 import org.apache.tools.ant.filters.FixCrLfFilter
 
@@ -34,6 +35,12 @@ ext {
   } else {
     buildNumber = "local"
     snapshot = "-SNAPSHOT"
+  }
+  if (!local) {
+    def commitHash = project.hasProperty('commitHash') ? project.property('commitHash') : 'local'
+    def commitCount = project.hasProperty('commitCount') ? project.property('branchName') : '0'
+    def branchName = project.hasProperty('branchName') ? project.property('branchName') : 'v30'
+    def (_1, versionTag, _2, _3) = (branchName.toString().trim() =~ /^v([^-]+)-(\d+)-(g[0-9a-f]+)$/)[0]
   }
 }
 
