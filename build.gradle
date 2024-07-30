@@ -37,9 +37,9 @@ ext {
     snapshot = "-SNAPSHOT"
   }
   if (!local) {
-    def commitHash = project.hasProperty('commitHash') ? project.property('commitHash') : 'local'
-    def commitCount = project.hasProperty('commitCount') ? project.property('commitCount') : '0'
-    def versionTag = "v30"
+    project.ext.commitHash = project.hasProperty('commitHash') ? project.property('commitHash') : 'local'
+    project.ext.commitCount = project.hasProperty('commitCount') ? project.property('commitCount') : '0'
+    project.ext.versionTag = "v30"
   }
 }
 
