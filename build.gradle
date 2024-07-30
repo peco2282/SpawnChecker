@@ -14,7 +14,11 @@ plugins {
 }
 apply plugin: "net.minecraftforge.gradle"
 apply plugin: "eclipse" // Do not delete it, because referred from FG
-apply from: "./gradle/versions.gradle"
+//apply from: "./gradle/versions.gradle"
+// Add this at the top of your build.gradle file
+if (!System.getenv("GITHUB_ACTIONS")) {
+  apply from: "./gradle/versions.gradle"
+}
 
 import org.apache.tools.ant.filters.FixCrLfFilter
 
