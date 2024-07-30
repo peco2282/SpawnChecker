@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [ v3.0-pre-v.1.17 ]
+  pull_request:
+    branches: [ v3.0-pre-v.1.17 ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 8 (Amazon Corretto)
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '8'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Get Git info
+        id: git_info
+        run: |
+          echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+          echo "COMMIT_COUNT=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+
+      - name: Build with Gradle
+        run: ./gradlew build -PcommitHash=${{ env.COMMIT_HASH }} -PcommitCount=${{ env.COMMIT_COUNT }}
+
+      - name: Run tests
+        run: ./gradlew test -PcommitHash=${{ env.COMMIT_HASH }} -PcommitCount=${{ env.COMMIT_COUNT }} -PbranchName=${{ env.BRANCH_NAME }}

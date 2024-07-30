@@ -15,7 +15,11 @@ buildscript {
 apply plugin: "net.minecraftforge.gradle"
 apply plugin: "eclipse" // Do not delete it, because referred from FG
 apply plugin: "maven-publish"
-apply from: "./gradle/versions.gradle"
+//apply from: "./gradle/versions.gradle"
+
+def local = !System.getenv("GITHUB_ACTIONS")
+if (local)
+  apply from: "./gradle/versions.gradle"
 
 import org.apache.tools.ant.filters.FixCrLfFilter
 
@@ -31,6 +35,11 @@ ext {
   } else {
     buildNumber = "local"
     snapshot = "-SNAPSHOT"
+  }
+  if (!local) {
+    project.ext.commitHash = project.hasProperty('commitHash') ? project.property('commitHash') : 'local'
+    project.ext.commitCount = project.hasProperty('commitCount') ? project.property('commitCount') : '0'
+    project.ext.versionTag = "v30"
   }
 }
 
