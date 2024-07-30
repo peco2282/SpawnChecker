@@ -1,4 +1,6 @@
-SpawnChecker 3 [![Build Status](https://travis-ci.com/alalwww/SpawnChecker.svg?branch=master)](https://travis-ci.com/alalwww/SpawnChecker)
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/peco2282/SpawnChecker/ci.yml)
+
+SpawnChecker 4
 ==================
 ![SpawnChecker logo](src/main/resources/spawnchecker_logo.png)
 
