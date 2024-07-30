@@ -37,10 +37,9 @@ jobs:
         run: |
           echo "COMMIT_HASH=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
           echo "COMMIT_COUNT=$(git rev-list --count HEAD)" >> $GITHUB_ENV
-          echo "BRANCH_NAME=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
 
       - name: Build with Gradle
-        run: ./gradlew build -PcommitHash=${{ env.COMMIT_HASH }} -PcommitCount=${{ env.COMMIT_COUNT }} -PbranchName=${{ env.BRANCH_NAME }}
+        run: ./gradlew build -PcommitHash=${{ env.COMMIT_HASH }} -PcommitCount=${{ env.COMMIT_COUNT }}
 
       - name: Run tests
         run: ./gradlew test -PcommitHash=${{ env.COMMIT_HASH }} -PcommitCount=${{ env.COMMIT_COUNT }} -PbranchName=${{ env.BRANCH_NAME }}

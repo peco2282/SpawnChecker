@@ -39,8 +39,7 @@ ext {
   if (!local) {
     def commitHash = project.hasProperty('commitHash') ? project.property('commitHash') : 'local'
     def commitCount = project.hasProperty('commitCount') ? project.property('branchName') : '0'
-    def branchName = project.hasProperty('branchName') ? project.property('branchName') : 'v30'
-    def (_1, versionTag, _2, _3) = (branchName.toString().trim() =~ /^v([^-]+)-(\d+)-(g[0-9a-f]+)$/)[0]
+    def versionTag = "v30"
   }
 }
 
