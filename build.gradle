@@ -38,7 +38,7 @@ ext {
   }
   if (!local) {
     def commitHash = project.hasProperty('commitHash') ? project.property('commitHash') : 'local'
-    def commitCount = project.hasProperty('commitCount') ? project.property('branchName') : '0'
+    def commitCount = project.hasProperty('commitCount') ? project.property('commitCount') : '0'
     def versionTag = "v30"
   }
 }
